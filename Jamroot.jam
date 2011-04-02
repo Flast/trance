@@ -1,0 +1,20 @@
+import os ;
+
+if [ os.environ BOOST_ROOT ]
+{
+    path-constant BOOST_ROOT : [ os.environ BOOST_ROOT ] ;
+    use-project /boost : $(BOOST_ROOT) ;
+
+    project /trance
+      : parent
+          /boost
+      : requirements
+          <define>BOOST_ALL_NO_LIB=1
+          <include>$(BOOST_ROOT) ;
+}
+else
+{
+    project /trance
+      : requirements
+          <define>BOOST_ALL_NO_LIB=1 ;
+}
