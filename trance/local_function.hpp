@@ -23,10 +23,9 @@
 #ifndef IG_TRANCE_LOCAL_FUNCTION_HPP_ONCE_
 #define IG_TRANCE_LOCAL_FUNCTION_HPP_ONCE_
 
-#include <boost/config/select_compiler_config.hpp>
-#include BOOST_COMPILER_CONFIG
-
 #include <boost/preprocessor/cat.hpp>
+
+#include <trance/config.hpp>
 
 // example:
 //  TRANCE_LOCAL_FUNCTION( void, function, ( const char *str ),
@@ -43,7 +42,7 @@
 //  void ( *pf1 )( const char * ) = function; // implicitly convertion
 //  void ( *pf2 )( const char * ) = &function; // also explicitly can
 
-#ifdef BOOST_NO_LAMBDAS
+#if defined( BOOST_NO_LAMBDAS )
 
 // If compiler does not support C++0x style lambda expression,
 // use static member function to emulate the (non-capture) lambda.
