@@ -28,6 +28,8 @@
 #include <utility>
 #include <functional>
 
+#include <boost/config.hpp>
+
 #include <boost/static_assert.hpp>
 
 #include <boost/mpl/and.hpp>

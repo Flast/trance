@@ -23,6 +23,8 @@
 #ifndef IG_TRANCE_SAFE_BOOL_HPP_
 #define IG_TRANCE_SAFE_BOOL_HPP_
 
+#include <boost/config.hpp>
+
 #include <trance/config.hpp>
 
 namespace trance

@@ -23,9 +23,6 @@
 #ifndef IG_TRANCE_CONFIG_HPP_
 #define IG_TRANCE_CONFIG_HPP_
 
-#include <boost/config/select_compiler_config.hpp>
-#include BOOST_COMPILER_CONFIG
-
 #if defined( BOOST_NO_CONSTEXPR )
 #   define TRANCE_CONSTEXPR
 #else
@@ -34,8 +31,6 @@
 
 // work around for noexcept
 #define TRANCE_NOEXCEPT
-
-#include <boost/config/suffix.hpp>
 
 #endif // IG_TRANCE_CONFIG_HPP_
 

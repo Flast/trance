@@ -23,6 +23,8 @@
 #ifndef IG_TRANCE_LOCAL_FUNCTION_HPP_ONCE_
 #define IG_TRANCE_LOCAL_FUNCTION_HPP_ONCE_
 
+#include <boost/config.hpp>
+
 #include <boost/preprocessor/cat.hpp>
 
 #include <trance/config.hpp>
