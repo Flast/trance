@@ -547,19 +547,22 @@ operator>=( ::std::nullptr_t, const safely_ptr< T > &_x ) TRANCE_NOEXCEPT
 namespace std
 {
 
-template < typename T >
+template < typename >
 struct hash;
 
 // std::hash specialization for trance::safely_ptr.
 template < typename T >
 struct hash< ::trance::safely_ptr< T > >
-  : public unary_function< ::trance::safely_ptr< T >, size_t >
 {
-    size_t
-    operator()( const ::trance::safely_ptr< T > &_x ) const
+    typedef size_t result_type;
+    typedef ::trance::safely_ptr< T > argument_type;
+
+    result_type
+    operator()( const argument_type &_x ) const
     {
-        typedef ::trance::safely_ptr< T > _SP;
-        return std::hash< BOOST_DEDUCED_TYPENAME _SP::pointer >()( _x.get() );
+        return std::hash<
+          BOOST_DEDUCED_TYPENAME argument_type::pointer
+        >()( _x.get() );
     }
 };
 
