@@ -55,11 +55,12 @@ class nullptr_exception {};
 template < typename >
 class safely_ptr;
 
-template < typename T, typename U >
-inline safely_ptr< T >
-safely_cast( safely_ptr< U > _ptr ) TRANCE_NOEXCEPT
+namespace safely_ptr_detail_
 {
-    typedef ::boost::mpl::or_<
+
+template < typename T, typename U >
+struct array_or_not
+  : public ::boost::mpl::or_<
       ::boost::mpl::and_<
         ::boost::mpl::not_< ::boost::is_array< T > >,
         ::boost::mpl::not_< ::boost::is_array< U > >
@@ -68,17 +69,89 @@ safely_cast( safely_ptr< U > _ptr ) TRANCE_NOEXCEPT
         ::boost::is_array< T >,
         ::boost::is_array< U >
       >
-    > array_or_not_array;
-    BOOST_STATIC_ASSERT( array_or_not_array::value );
+    > {};
 
-    typedef ::boost::is_convertible<
-      BOOST_DEDUCED_TYPENAME safely_ptr< U >::pointer,
+} // namespace safely_ptr_detail_
+
+//  All of safely_cast operator requirements:
+//  1) Both of template parameter T and U is array or not array.
+//  example:
+//    safely_ptr< int > px;
+//    safely_cast< int >( px ); // OK.
+//    safely_cast< int[] >( px ); // ill-formed.
+//      // Cannot cast non-array to array.
+//    safely_ptr< int[] > ax;
+//    safely_cast< int >( ax ); // ill-formed.
+//      // Cannot cast array to non-array.
+
+// static_safely_cast< T > works like static_cast< T * >.
+//  example:
+//    safely_ptr< const int > px;
+//    static_safely_cast< const int >( px ); // OK.
+//    static_safely_cast< const float >( px ); // ill-formed.
+//      // Not convertible const int * to const float *.
+//    static_safely_cast< int >( px ); // ill-formed.
+//      // Not convertible const int * to int *.
+template < typename T, typename U >
+inline safely_ptr< T >
+static_safely_cast( safely_ptr< U > _ptr ) TRANCE_NOEXCEPT
+{
+    BOOST_STATIC_ASSERT(( safely_ptr_detail_::array_or_not< T, U >::value ));
+    return safely_ptr< T >( static_cast<
       BOOST_DEDUCED_TYPENAME safely_ptr< T >::pointer
-    > convertible_type;
-    BOOST_STATIC_ASSERT( convertible_type::value );
+    >( _ptr.get() ) );
+}
 
-    typedef BOOST_DEDUCED_TYPENAME safely_ptr< T >::pointer cast_type;
-    return safely_ptr< T >( static_cast< cast_type >( _ptr.get() ) );
+// reinterpret_safely_cast< T > works like reinterpret_cast< T * >
+//  example:
+//    safely_ptr< const int > px;
+//    reinterpret_safely_cast< const int >( px ); // OK.
+//    reinterpret_safely_cast< const float >( px ); // OK.
+//    reinterpret_safely_cast< int >( px ); // ill-formed.
+//      // Not convertible const int * to int *.
+template < typename T, typename U >
+inline safely_ptr< T >
+reinterpret_safely_cast( safely_ptr< U > _ptr ) TRANCE_NOEXCEPT
+{
+    BOOST_STATIC_ASSERT(( safely_ptr_detail_::array_or_not< T, U >::value ));
+    return safely_ptr< T >( reinterpret_cast<
+      BOOST_DEDUCED_TYPENAME safely_ptr< T >::pointer
+    >( _ptr.get() ) );
+}
+
+// const_safely_cast< T > works like const_cast< T * >
+//  example:
+//    safely_ptr< const int > px;
+//    const_safely_cast< const int >( px ); // OK.
+//    const_safely_cast< const float >( px ); // ill-formed.
+//      // Not convertible const int * to const float *.
+//    const_safely_cast< int >( px ); // OK.
+template < typename T, typename U >
+inline safely_ptr< T >
+const_safely_cast( safely_ptr< U > _ptr ) TRANCE_NOEXCEPT
+{
+    BOOST_STATIC_ASSERT(( safely_ptr_detail_::array_or_not< T, U >::value ));
+    return safely_ptr< T >( const_cast<
+      BOOST_DEDUCED_TYPENAME safely_ptr< T >::pointer
+    >( _ptr.get() ) );
+}
+
+// dynamic_safely_cast< T > works like dynamic_cast< T * >
+//  example:
+//    struct B { virtual ~B(); };
+//    struct D : B {};
+//    safely_ptr< B > pb;
+//    dynamic_safely_cast< D >( pb ); // OK.
+//    dynamic_safely_cast< int >( pb ); // ill-formed.
+//      // Not convertible B * to int *.
+template < typename T, typename U >
+inline safely_ptr< T >
+dynamic_safely_cast( safely_ptr< U > _ptr ) TRANCE_NOEXCEPT
+{
+    BOOST_STATIC_ASSERT(( safely_ptr_detail_::array_or_not< T, U >::value ));
+    return safely_ptr< T >( dynamic_cast<
+      BOOST_DEDUCED_TYPENAME safely_ptr< T >::pointer
+    >( _ptr.get() ) );
 }
 
 template < typename T >
@@ -119,7 +192,7 @@ public:
 
     template < typename U >
     safely_ptr( const safely_ptr< U > &_ptr ) TRANCE_NOEXCEPT
-      : _M_ptr( safely_cast< element_type >( _ptr ).get() ) {}
+      : _M_ptr( static_safely_cast< element_type >( _ptr ).get() ) {}
 
 #if defined( BOOST_HAS_RVALUE_REFS )
     safely_ptr( safely_ptr &&_ptr ) TRANCE_NOEXCEPT
@@ -127,7 +200,7 @@ public:
 
     template < typename U >
     safely_ptr( safely_ptr< U > &&_ptr ) TRANCE_NOEXCEPT
-      : _M_ptr( safely_cast< element_type >( _ptr ).get() ) {}
+      : _M_ptr( static_safely_cast< element_type >( _ptr ).get() ) {}
 #endif // !BOOST_NO_RVALUE_REFERENCES
 
     safely_ptr &
@@ -148,7 +221,7 @@ public:
     safely_ptr &
     operator=( const safely_ptr< U > &_ptr ) TRANCE_NOEXCEPT
     {
-        safely_cast< element_type >( _ptr ).swap( this );
+        static_safely_cast< element_type >( _ptr ).swap( this );
         return *this;
     }
 
@@ -164,7 +237,7 @@ public:
     safely_ptr &
     operator=( safely_ptr< U > &&_ptr ) TRANCE_NOEXCEPT
     {
-        safely_cast< element_type >( _ptr ).swap( this );
+        static_safely_cast< element_type >( _ptr ).swap( this );
         return *this;
     }
 #endif // !BOOST_NO_RVALUE_REFERENCES
@@ -254,7 +327,7 @@ public:
 
     template < typename U >
     safely_ptr( const safely_ptr< U > &_ptr ) TRANCE_NOEXCEPT
-      : _M_ptr( safely_cast< element_type[] >( _ptr ).get() ) {}
+      : _M_ptr( static_safely_cast< element_type[] >( _ptr ).get() ) {}
 
 #if defined( BOOST_HAS_RVALUE_REFS )
     safely_ptr( safely_ptr &&_ptr ) TRANCE_NOEXCEPT
@@ -262,7 +335,7 @@ public:
 
     template < typename U >
     safely_ptr( safely_ptr< U > &&_ptr ) TRANCE_NOEXCEPT
-      : _M_ptr( safely_cast< element_type[] >( _ptr ).get() ) {}
+      : _M_ptr( static_safely_cast< element_type[] >( _ptr ).get() ) {}
 #endif // !BOOST_NO_RVALUE_REFERENCES
 
     safely_ptr &
@@ -283,7 +356,7 @@ public:
     safely_ptr &
     operator=( const safely_ptr< U > &_ptr ) TRANCE_NOEXCEPT
     {
-        safely_cast< element_type[] >( _ptr ).swap( this );
+        static_safely_cast< element_type[] >( _ptr ).swap( this );
         return *this;
     }
 
@@ -299,7 +372,7 @@ public:
     safely_ptr &
     operator=( safely_ptr< U > &&_ptr ) TRANCE_NOEXCEPT
     {
-        safely_cast< element_type[] >( _ptr ).swap( this );
+        static_safely_cast< element_type[] >( _ptr ).swap( this );
         return *this;
     }
 #endif // !BOOST_NO_RVALUE_REFERENCES
