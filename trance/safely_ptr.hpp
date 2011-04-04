@@ -262,7 +262,7 @@ public:
     { return get() == pointer() ? true : false; }
 #else
     operator safe_bool_t( void ) const TRANCE_NOEXCEPT
-    { return safe_bool( get() == pointer() ); }
+    { return safe_bool( get() != pointer() ); }
 #endif // !BOOST_NO_EXPLICIT_CONVERSION_OPERATORS
 
     pointer
@@ -390,7 +390,7 @@ public:
     { return get() == pointer() ? true : false; }
 #else
     operator safe_bool_t( void ) const TRANCE_NOEXCEPT
-    { return safe_bool( get() == pointer() ); }
+    { return safe_bool( get() != pointer() ); }
 #endif // !BOOST_NO_EXPLICIT_CONVERSION_OPERATORS
 
     pointer
