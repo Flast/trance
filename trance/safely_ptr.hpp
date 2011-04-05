@@ -28,10 +28,7 @@
 #include <utility>
 #include <functional>
 
-#include <boost/config.hpp>
-
-#include <boost/static_assert.hpp>
-
+#include <boost/mpl/assert.hpp>
 #include <boost/mpl/and.hpp>
 #include <boost/mpl/not.hpp>
 #include <boost/mpl/or.hpp>
@@ -96,7 +93,7 @@ template < typename T, typename U >
 inline safely_ptr< T >
 static_safely_cast( safely_ptr< U > _ptr ) TRANCE_NOEXCEPT
 {
-    BOOST_STATIC_ASSERT(( safely_ptr_detail_::array_or_not< T, U >::value ));
+    BOOST_MPL_ASSERT(( safely_ptr_detail_::array_or_not< T, U > ));
     return safely_ptr< T >( static_cast<
       BOOST_DEDUCED_TYPENAME safely_ptr< T >::pointer
     >( _ptr.get() ) );

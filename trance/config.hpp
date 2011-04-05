@@ -23,6 +23,8 @@
 #ifndef IG_TRANCE_CONFIG_HPP_
 #define IG_TRANCE_CONFIG_HPP_
 
+#include <boost/config.hpp>
+
 #if defined( BOOST_NO_CONSTEXPR )
 #   define TRANCE_CONSTEXPR
 #else
