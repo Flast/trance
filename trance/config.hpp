@@ -20,8 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef IG_TRANCE_CONFIG_HPP_
-#define IG_TRANCE_CONFIG_HPP_
+#ifndef IG_TRANCE_CONFIG_HPP_ONCE_
+#define IG_TRANCE_CONFIG_HPP_ONCE_
 
 #include <boost/config.hpp>
 
@@ -34,5 +34,5 @@
 // work around for noexcept
 #define TRANCE_NOEXCEPT
 
-#endif // IG_TRANCE_CONFIG_HPP_
+#endif // IG_TRANCE_CONFIG_HPP_ONCE_
 

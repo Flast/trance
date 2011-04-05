@@ -20,8 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef IG_TRANCE_SAFE_BOOL_HPP_
-#define IG_TRANCE_SAFE_BOOL_HPP_
+#ifndef IG_TRANCE_SAFE_BOOL_HPP_ONCE_
+#define IG_TRANCE_SAFE_BOOL_HPP_ONCE_
 
 #include <trance/config.hpp>
 
@@ -53,5 +53,5 @@ safe_bool( bool b ) TRANCE_NOEXCEPT
 
 } // namespace trance
 
-#endif // IG_TRANCE_SAFE_BOOL_HPP_
+#endif // IG_TRANCE_SAFE_BOOL_HPP_ONCE_
 
