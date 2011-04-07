@@ -35,17 +35,32 @@
 namespace trance
 {
 
+class type_info
+  : public ::std::type_info
+{
+    typedef ::std::type_info _base_t;
+
+protected:
+    explicit
+    type_info( const char *_n )
+      : _base_t( _n ) {}
+
+public:
+    virtual ~type_info( void ) {}
+
+    virtual const char *
+    demangled_name( void ) const = 0;
+};
+
 namespace typeinfo_detail
 {
 
 class _type_info_impl
-  : public ::std::type_info
+  : public type_info
 {
     template < typename >
-    friend _type_info_impl &
+    friend type_info &
     _type_id_by_type( void );
-
-    typedef ::std::type_info _base_t;
 
 #if defined( BOOST_GNU_STDLIB ) && BOOST_GNU_STDLIB
     static inline char *
@@ -56,7 +71,7 @@ class _type_info_impl
 
     explicit
     _type_info_impl( const char *_n )
-      : _base_t( _n ),
+      : type_info( _n ),
         _M_demangled_name( _demangle( _n ) ) {}
 #endif // BOOST_GNU_STDLIB
 
@@ -74,7 +89,7 @@ public:
 };
 
 template < typename T >
-inline _type_info_impl &
+inline type_info &
 _type_id_by_type( void )
 {
     static _type_info_impl _impl_instance( typeid( T ).name() );
@@ -84,19 +99,19 @@ _type_id_by_type( void )
 #if defined( BOOST_NO_RVALUE_REFERENCES )
 
 template < typename T >
-inline _type_info_impl &
+inline type_info &
 _type_id_by_expr( T & )
 { return _type_id_by_type< T >(); }
 
 template < typename T >
-inline _type_info_impl &
+inline type_info &
 _type_id_by_expr( const T & )
 { return _type_id_by_type< const T >(); }
 
 #else // BOOST_NO_RVALUE_REFERENCES
 
 template < typename T >
-inline _type_info_impl &
+inline type_info &
 _type_id_by_expr( T && )
 { return _type_id_by_type< T >(); }
 
