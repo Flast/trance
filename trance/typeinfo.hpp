@@ -42,8 +42,11 @@ class type_info
 
 protected:
     explicit
-    type_info( const char *_n )
-      : _base_t( _n ) {}
+    type_info( const _base_t &_ti )
+#if defined( BOOST_GNU_STDLIB ) && BOOST_GNU_STDLIB
+      : _base_t( _ti.name() )
+#endif // BOOST_GNU_STDLIB
+          {}
 
 public:
     virtual ~type_info( void ) {}
@@ -59,21 +62,30 @@ class _type_info_impl
   : public type_info
 {
     template < typename >
-    friend type_info &
+    friend const type_info &
     _type_id_by_type( void );
 
+    typedef
 #if defined( BOOST_GNU_STDLIB ) && BOOST_GNU_STDLIB
-    static inline char *
-    _demangle( const char *_name )
-    { return __cxxabiv1::__cxa_demangle( _name, 0, 0, 0 ); }
+      char *
+#endif // BOOST_GNU_STDLIB
+      _demangled_name_type;
 
-    char *_M_demangled_name;
+    _demangled_name_type _M_demangled_name;
+
+    static inline _demangled_name_type
+    _demangle( const ::std::type_info &_ti )
+    {
+        const char * const mangled_name = _ti.name();
+#if defined( BOOST_GNU_STDLIB ) && BOOST_GNU_STDLIB
+        return __cxxabiv1::__cxa_demangle( mangled_name, 0, 0, 0 );
+#endif // BOOST_GNU_STDLIB
+    }
 
     explicit
-    _type_info_impl( const char *_n )
-      : type_info( _n ),
-        _M_demangled_name( _demangle( _n ) ) {}
-#endif // BOOST_GNU_STDLIB
+    _type_info_impl( const ::std::type_info &_ti )
+      : type_info( _ti ),
+        _M_demangled_name( _demangle( _ti ) ) {}
 
 public:
     ~_type_info_impl( void ) TRANCE_NOEXCEPT
@@ -89,29 +101,29 @@ public:
 };
 
 template < typename T >
-inline type_info &
+inline const type_info &
 _type_id_by_type( void )
 {
-    static _type_info_impl _impl_instance( typeid( T ).name() );
+    static _type_info_impl _impl_instance( typeid( T ) );
     return _impl_instance;
 }
 
 #if defined( BOOST_NO_RVALUE_REFERENCES )
 
 template < typename T >
-inline type_info &
+inline const type_info &
 _type_id_by_expr( T & )
 { return _type_id_by_type< T >(); }
 
 template < typename T >
-inline type_info &
+inline const type_info &
 _type_id_by_expr( const T & )
 { return _type_id_by_type< const T >(); }
 
 #else // BOOST_NO_RVALUE_REFERENCES
 
 template < typename T >
-inline type_info &
+inline const type_info &
 _type_id_by_expr( T && )
 { return _type_id_by_type< T >(); }
 
@@ -120,10 +132,10 @@ _type_id_by_expr( T && )
 } // namespace typeinfo_detail
 
 #define TRANCE_TYPEID_BY_TYPE( _T ) \
-  ::trance::typeinfo_detail::_type_id_by_type< _T >()
+  static_cast< const ::trance::type_info & >( ::trance::typeinfo_detail::_type_id_by_type< _T >() )
 
 #define TRANCE_TYPEID_BY_EXPR( _Expr ) \
-  ::trance::typeinfo_detail::_type_id_by_expr( _Expr )
+  static_cast< const ::trance::type_info & >( ::trance::typeinfo_detail::_type_id_by_expr( _Expr ) )
 
 } // namespace trance
 
