@@ -23,6 +23,7 @@
 #ifndef IG_TRANCE_TYPEINFO_HPP_ONCE_
 #define IG_TRANCE_TYPEINFO_HPP_ONCE_
 
+#include <cstddef>
 #include <typeinfo>
 
 #include <trance/config.hpp>
@@ -35,27 +36,29 @@
 namespace trance
 {
 
-class type_info
+namespace typeinfo_detail
 {
-private:
-    const ::std::type_info &_M_internal;
 
-    type_info( const type_info & )
+class _type_info_base
+{
+    type_info_base( const _type_info_base & )
 #if !defined( BOOST_NO_DELETED_FUNCTIONS )
       = delete
 #endif // BOOST_NO_DELETED_FUNCTIONS
       ;
 
-    type_info &
-    operator=( const type_info & )
+    _type_info_base &
+    operator=( const _type_info_base & )
 #if !defined( BOOST_NO_DELETED_FUNCTIONS )
       = delete
 #endif // BOOST_NO_DELETED_FUNCTIONS
       ;
 
 protected:
+    const ::std::type_info &_M_internal;
+
     explicit
-    type_info( const ::std::type_info &_ti )
+    _type_info_base( const ::std::type_info &_ti )
       : _M_internal( _ti ) {}
 
 public:
@@ -75,11 +78,85 @@ public:
     operator!=( const ::std::type_info &_other ) const TRANCE_NOEXCEPT
     { return _M_internal.operator!=( _other ); }
 
-    // TODO: implement hash_code()
-
     operator const ::std::type_info &( void ) const TRANCE_NOEXCEPT
     { return _M_internal; }
+};
 
+#if defined( __GNUC__ ) && defined( __GNUC_MINOR__ )
+#   if __GNUC__ >= 4 \
+    && __GNUC_MINOR__ >= 6 \
+    && defined( __GXX_EXPERIMENTAL_CXX0X__ )
+#       define TRANCE_HAS_TYPEINFO_HASH_CODE true
+#       define TRANCE_USE_TYPEINFO_PARTIAL_SPEC
+#   else
+#       define TRANCE_HAS_TYPEINFO_HASH_CODE false
+#   endif // GCC >= 4.6 && -std=c++0x
+#else // __GNUC__ && __GNUC_MINOR__
+#   define TRANCE_HAS_TYPEINFO_HASH_CODE \
+  ::trance::typeinfo_detail::_has_hash_code< ::std::type_info >::value
+#   define TRANCE_USE_TYPEINFO_PARTIAL_SPEC
+
+template < typename T >
+struct _has_hash_code
+{
+    typedef char                         no_type;
+    typedef struct { char _dummy[ 8 ]; } yes_type;
+
+    template < typename >
+    static no_type
+    check( ... );
+
+    template < typename U >
+    static yes_type
+    check( U *, ::std::size_t ( U::* )( void ) const = &T::hash_code );
+
+    BOOST_STATIC_CONSTEXPR bool value =
+      sizeof( check< T >( 0 ) ) == sizeof( yes_type );
+};
+#endif
+
+template < bool >
+class _type_info
+  : public _type_info_base
+{
+    typedef _type_info_base _base_t;
+
+protected:
+    _type_info( const ::std::type_info &_ti )
+      : _base_t( _ti ) {}
+};
+
+#if defined( TRANCE_USE_TYPEINFO_PARTIAL_SPEC )
+#undef TRANCE_USE_TYPEINFO_PARTIAL_SPEC
+template <>
+class _type_info< true >
+  : public _type_info_base
+{
+    typedef _type_info_base _base_t;
+
+protected:
+    _type_info( const ::std::type_info &_ti )
+      : _base_t( _ti ) {}
+
+public:
+    ::std::size_t
+    hash_code( void ) const TRANCE_NOEXCEPT
+    { return _base_t::_M_internal.hash_code(); }
+};
+#endif // TRANCE_USE_TYPEINFO_PARTIAL_SPEC
+
+} // namespace typeinfo_detail
+
+class type_info
+  : public typeinfo_detail::_type_info< TRANCE_HAS_TYPEINFO_HASH_CODE >
+{
+    typedef typeinfo_detail::_type_info< TRANCE_HAS_TYPEINFO_HASH_CODE > _base_t;
+
+protected:
+    type_info( const ::std::type_info &_ti )
+      : _base_t( _ti ) {}
+
+public:
     virtual const char *
     demangled_name( void ) const = 0;
 };
