@@ -36,20 +36,49 @@ namespace trance
 {
 
 class type_info
-  : public ::std::type_info
 {
-    typedef ::std::type_info _base_t;
+private:
+    const ::std::type_info &_M_internal;
+
+    type_info( const type_info & )
+#if !defined( BOOST_NO_DELETED_FUNCTIONS )
+      = delete
+#endif // BOOST_NO_DELETED_FUNCTIONS
+      ;
+
+    type_info &
+    operator=( const type_info & )
+#if !defined( BOOST_NO_DELETED_FUNCTIONS )
+      = delete
+#endif // BOOST_NO_DELETED_FUNCTIONS
+      ;
 
 protected:
     explicit
-    type_info( const _base_t &_ti )
-#if defined( BOOST_GNU_STDLIB ) && BOOST_GNU_STDLIB
-      : _base_t( _ti.name() )
-#endif // BOOST_GNU_STDLIB
-          {}
+    type_info( const ::std::type_info &_ti )
+      : _M_internal( _ti ) {}
 
 public:
-    virtual ~type_info( void ) {}
+    const char *
+    name( void ) const
+    { return _M_internal.name(); }
+
+    bool
+    before( const ::std::type_info &_other ) const TRANCE_NOEXCEPT
+    { return _M_internal.before( _other ); }
+
+    bool
+    operator==( const ::std::type_info &_other ) const TRANCE_NOEXCEPT
+    { return _M_internal.operator==( _other ); }
+
+    bool
+    operator!=( const ::std::type_info &_other ) const TRANCE_NOEXCEPT
+    { return _M_internal.operator!=( _other ); }
+
+    // TODO: implement hash_code()
+
+    operator const ::std::type_info &( void ) const TRANCE_NOEXCEPT
+    { return _M_internal; }
 
     virtual const char *
     demangled_name( void ) const = 0;
@@ -65,11 +94,7 @@ class _type_info_impl
     friend const type_info &
     _type_id_by_type( void );
 
-    typedef
-#if defined( BOOST_GNU_STDLIB ) && BOOST_GNU_STDLIB
-      char *
-#endif // BOOST_GNU_STDLIB
-      _demangled_name_type;
+    typedef char * _demangled_name_type;
 
     _demangled_name_type _M_demangled_name;
 
@@ -79,6 +104,8 @@ class _type_info_impl
         const char * const mangled_name = _ti.name();
 #if defined( BOOST_GNU_STDLIB ) && BOOST_GNU_STDLIB
         return __cxxabiv1::__cxa_demangle( mangled_name, 0, 0, 0 );
+#else
+        return mangled_name;
 #endif // BOOST_GNU_STDLIB
     }
 
