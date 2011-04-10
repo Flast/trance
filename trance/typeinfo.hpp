@@ -208,9 +208,21 @@ public:
     { return _M_demangled_name; }
 };
 
+#define TRANCE_TYPEID_BY_TYPE( _type_id )                       \
+  static_cast< const ::trance::type_info & >(                   \
+    ::trance::typeinfo_detail::_typeid_by_type< _type_id >()    \
+  )                                                             \
+
+#define TRANCE_TYPEID_BY_EXPR( _Expr )          \
+  static_cast< const ::trance::type_info & >(   \
+    ::trance::typeinfo_detail::_typeid_by_expr( \
+      TRANCE_DETAIL_TYPEOF( _Expr )             \
+    )                                           \
+  )                                             \
+
 template < typename T >
 inline const type_info &
-_type_id_by_type( void )
+_typeid_by_type( void )
 {
     static _type_info_impl _impl_instance( typeid( T ) );
     return _impl_instance;
@@ -218,22 +230,10 @@ _type_id_by_type( void )
 
 template < typename T >
 inline const type_info &
-_type_id_by_expr( T * )
-{ return _type_id_by_type< T >(); }
+_typeid_by_expr( T * )
+{ return TRANCE_TYPEID_BY_TYPE( T ); }
 
 } // namespace typeinfo_detail
-
-#define TRANCE_TYPEID_BY_TYPE( _T ) \
-  static_cast< const ::trance::type_info & >( \
-    ::trance::typeinfo_detail::_type_id_by_type< _T >() \
-  )
-
-#define TRANCE_TYPEID_BY_EXPR( _Expr ) \
-  static_cast< const ::trance::type_info & >( \
-    ::trance::typeinfo_detail::_type_id_by_expr( \
-      TRANCE_DETAIL_TYPEOF( _Expr ) \
-    ) \
-  )
 
 } // namespace trance
 

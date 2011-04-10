@@ -25,6 +25,8 @@
 
 #include <boost/config.hpp>
 
+// Compiler features
+
 #if defined( BOOST_NO_CONSTEXPR )
 #   define TRANCE_CONSTEXPR
 #else
@@ -33,6 +35,14 @@
 
 // work around for noexcept
 #define TRANCE_NOEXCEPT
+
+// Standard Library features
+
+#if !defined( BOOST_NO_0X_HDR_TYPE_TRAITS )
+#   define TRANCE_TYPE_TRAITS_NAMESPACE ::std
+#else
+#   define TRANCE_TYPE_TRAITS_NAMESPACE ::boost
+#endif // !BOOST_NO_0X_HDR_TYPE_TRAITS
 
 #endif // IG_TRANCE_CONFIG_HPP_ONCE_
 
