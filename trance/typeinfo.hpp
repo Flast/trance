@@ -23,15 +23,19 @@
 #ifndef IG_TRANCE_TYPEINFO_HPP_ONCE_
 #define IG_TRANCE_TYPEINFO_HPP_ONCE_
 
+#include <trance/config.hpp>
+
 #include <cstddef>
 #include <typeinfo>
-
-#include <trance/config.hpp>
 
 #if defined( BOOST_GNU_STDLIB ) && BOOST_GNU_STDLIB
 #   include <cstdlib>
 #   include <cxxabi.h>
 #endif // BOOST_GNU_STDLIB
+
+#include <boost/type_traits/integral_constant.hpp>
+
+#include <trance/detail/typeof.hpp>
 
 namespace trance
 {
@@ -212,34 +216,24 @@ _type_id_by_type( void )
     return _impl_instance;
 }
 
-#if defined( BOOST_NO_RVALUE_REFERENCES )
-
 template < typename T >
 inline const type_info &
-_type_id_by_expr( T & )
+_type_id_by_expr( T * )
 { return _type_id_by_type< T >(); }
-
-template < typename T >
-inline const type_info &
-_type_id_by_expr( const T & )
-{ return _type_id_by_type< const T >(); }
-
-#else // BOOST_NO_RVALUE_REFERENCES
-
-template < typename T >
-inline const type_info &
-_type_id_by_expr( T && )
-{ return _type_id_by_type< T >(); }
-
-#endif // BOOST_NO_RVALUE_REFERENCES
 
 } // namespace typeinfo_detail
 
 #define TRANCE_TYPEID_BY_TYPE( _T ) \
-  static_cast< const ::trance::type_info & >( ::trance::typeinfo_detail::_type_id_by_type< _T >() )
+  static_cast< const ::trance::type_info & >( \
+    ::trance::typeinfo_detail::_type_id_by_type< _T >() \
+  )
 
 #define TRANCE_TYPEID_BY_EXPR( _Expr ) \
-  static_cast< const ::trance::type_info & >( ::trance::typeinfo_detail::_type_id_by_expr( _Expr ) )
+  static_cast< const ::trance::type_info & >( \
+    ::trance::typeinfo_detail::_type_id_by_expr( \
+      TRANCE_DETAIL_TYPEOF( _Expr ) \
+    ) \
+  )
 
 } // namespace trance
 
