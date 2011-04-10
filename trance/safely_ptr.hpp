@@ -1,4 +1,4 @@
-// trance safely_ptr.hpp - Local Function Library
+// trance safely_ptr.hpp - Safely pointer container Library
 //
 // Copyright (c) 2011 - 2011 Kohei Takahashi (Flast)
 //

@@ -1,4 +1,4 @@
-// trance safe_bool.hpp - Local Function Library
+// trance safe_bool.hpp - Safely boolian type Library
 //
 // Copyright (c) 2011 - 2011 Kohei Takahashi (Flast)
 //

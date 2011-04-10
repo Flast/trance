@@ -1,4 +1,4 @@
-// trance config.hpp - Local Function Library
+// trance config.hpp - Configuration Library
 //
 // Copyright (c) 2011 - 2011 Kohei Takahashi (Flast)
 //

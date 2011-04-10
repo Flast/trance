@@ -1,4 +1,4 @@
-// trance typeinfo.hpp - Local Function Library
+// trance typeinfo.hpp - Type identification Library
 //
 // Copyright (c) 2011 - 2011 Kohei Takahashi (Flast)
 //
