@@ -25,16 +25,10 @@
 
 #include <trance/config.hpp>
 
-#include <iosfwd>
 #include <cstring>
+#include <iosfwd>
 
-#include <boost/mpl/bool.hpp>
-#include <boost/mpl/vector.hpp>
-#include <boost/mpl/pair.hpp>
-#include <boost/mpl/switch.hpp>
-#include <boost/mpl/always.hpp>
-
-#include <boost/type_traits/is_convertible.hpp>
+#include <boost/operators.hpp>
 
 #ifndef TRANCE_GMP_DO_NOT_USE_HEADER
 #   include <gmp.h>
@@ -49,27 +43,10 @@ namespace trance
 namespace gmp
 {
 
-namespace gmp_detail
-{
-
-template < typename T >
-struct case_
-  : public ::boost::mpl::pair<
-      ::boost::is_convertible< ::boost::mpl::_1, T >,
-      ::boost::mpl::always< T >
-    > {};
-
-template < typename T >
-struct default_
-  : public ::boost::mpl::pair<
-      ::boost::mpl::always< ::boost::mpl::true_ >,
-      ::boost::mpl::always< T >
-    > {};
-
-} // namespace gmp_detail
-
 //template < typename Alloc >
 class integer_type
+  : private ::boost::totally_ordered< integer_type >,
+    private ::boost::totally_ordered< integer_type, double >
 {
     typedef mpz_t _internal_type;
 
@@ -95,30 +72,6 @@ private:
             mpz_clear( _M_internal );
             _M_is_initialized = false;
         }
-    }
-
-    void
-    _reset_impl( unsigned long op ) TRANCE_NOEXCEPT
-    {
-        mpz_set_ui( _M_internal, op );
-    }
-
-    void
-    _reset_impl( signed long op ) TRANCE_NOEXCEPT
-    {
-        mpz_set_si( _M_internal, op );
-    }
-
-    void
-    _reset_impl( double op ) TRANCE_NOEXCEPT
-    {
-        mpz_set_d( _M_internal, op );
-    }
-
-    void
-    _reset_impl( const integer_type &op ) TRANCE_NOEXCEPT
-    {
-        mpz_set( _M_internal, op._M_internal );
     }
 
 public:
@@ -171,24 +124,33 @@ public:
         _init();
     }
 
-    template < typename T >
     void
-    reset( const T &op ) TRANCE_NOEXCEPT
+    reset( const integer_type &op ) TRANCE_NOEXCEPT
     {
         _init();
-
-        typedef BOOST_DEDUCED_TYPENAME ::boost::mpl::switch_<
-          ::boost::mpl::vector<
-            gmp_detail::case_< unsigned long >,
-            gmp_detail::case_< signed long >,
-            gmp_detail::case_< double >,
-            gmp_detail::case_< const integer_type & >,
-            gmp_detail::default_< unsigned long >
-          >,
-          T
-        >::type result_type;
-        _reset_impl( static_cast< result_type >( op ) );
+        mpz_set( _M_internal, op._M_internal );
     }
+
+    //void
+    //reset( unsigned long op ) TRANCE_NOEXCEPT
+    //{
+    //    _init();
+    //    mpz_set_ui( _M_internal, op );
+    //}
+
+    void
+    reset( signed long op ) TRANCE_NOEXCEPT
+    {
+        _init();
+        mpz_set_si( _M_internal, op );
+    }
+
+    //void
+    //reset( double op ) TRANCE_NOEXCEPT
+    //{
+    //    _init();
+    //    mpz_set_d( _M_internal, op );
+    //}
 
     void
     reset( /*const*/ char *str, int base = 10 )
@@ -202,6 +164,12 @@ public:
     swap( integer_type &rop ) TRANCE_NOEXCEPT
     {
         mpz_swap( _M_internal, rop._M_internal );
+    }
+
+    bool
+    operator!( void ) const TRANCE_NOEXCEPT
+    {
+        return *this == 0;
     }
 
     friend integer_type &
@@ -220,6 +188,20 @@ public:
     operator*=( integer_type &, signed long ) TRANCE_NOEXCEPT;
     //friend integer_type &
     //operator*=( integer_type &rop, unsigned long op ) TRANCE_NOEXCEPT;
+
+    friend bool
+    operator==( const integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
+    friend bool
+    operator==( const integer_type &, double ) TRANCE_NOEXCEPT;
+    friend bool
+    operator==( double, const integer_type & ) TRANCE_NOEXCEPT;
+
+    friend bool
+    operator<( const integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
+    friend bool
+    operator<( const integer_type &, double ) TRANCE_NOEXCEPT;
+    friend bool
+    operator<( double, const integer_type & ) TRANCE_NOEXCEPT;
 
     template < typename _CharT, typename _Traits >
     friend ::std::basic_ostream< _CharT, _Traits > &
@@ -279,6 +261,42 @@ operator*=( integer_type &rop, signed long op ) TRANCE_NOEXCEPT
 //    mpz_mul_ui( rop._M_internal, rop._M_internal, op );
 //    return rop;
 //}
+
+bool
+operator==( const integer_type &_x, const integer_type &_y ) TRANCE_NOEXCEPT
+{
+    return !mpz_cmp( _x._M_internal, _y._M_internal );
+}
+
+bool
+operator==( const integer_type &_x, double _y ) TRANCE_NOEXCEPT
+{
+    return !mpz_cmp_d( _x._M_internal, _y );
+}
+
+bool
+operator==( double _x, const integer_type &_y ) TRANCE_NOEXCEPT
+{
+    return _y == _x;
+}
+
+bool
+operator<( const integer_type &_x, const integer_type &_y ) TRANCE_NOEXCEPT
+{
+    return mpz_cmp( _x._M_internal, _y._M_internal ) < 0;
+}
+
+bool
+operator<( const integer_type &_x, double _y ) TRANCE_NOEXCEPT
+{
+    return mpz_cmp_d( _x._M_internal, _y ) < 0;
+}
+
+bool
+operator<( double _x, const integer_type &_y ) TRANCE_NOEXCEPT
+{
+    return mpz_cmp_d( _y._M_internal, _x ) > 0;
+}
 
 template < typename _CharT, typename _Traits >
 ::std::basic_ostream< _CharT, _Traits > &
