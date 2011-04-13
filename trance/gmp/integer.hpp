@@ -62,7 +62,7 @@ struct case_
 template < typename T >
 struct default_
   : public ::boost::mpl::pair<
-      ::boost::mpl::true_,
+      ::boost::mpl::always< ::boost::mpl::true_ >,
       ::boost::mpl::always< T >
     > {};
 
