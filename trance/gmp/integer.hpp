@@ -46,7 +46,10 @@ namespace gmp
 //template < typename Alloc >
 class integer_type
   : private ::boost::totally_ordered< integer_type >,
-    private ::boost::totally_ordered< integer_type, double >
+    private ::boost::totally_ordered< integer_type, double >,
+    // +=, -=, *=, /=, %=
+    private ::boost::integer_arithmetic< integer_type >,
+    private ::boost::integer_arithmetic< integer_type, double >
 {
     typedef mpz_t _internal_type;
 
@@ -172,16 +175,33 @@ public:
         return *this == 0;
     }
 
+    // Boost.Operators, less_than_comparable requires
+    friend bool
+    operator<( const integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
+    friend bool
+    operator<( const integer_type &, double ) TRANCE_NOEXCEPT;
+    friend bool
+    operator>( const integer_type &, double ) TRANCE_NOEXCEPT;
+
+    // Boost.Operators, equality_comparable requires
+    friend bool
+    operator==( const integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
+    friend bool
+    operator==( const integer_type &, double ) TRANCE_NOEXCEPT;
+
+    // Boost.Operators, addable requires
     friend integer_type &
     operator+=( integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
     friend integer_type &
     operator+=( integer_type &, unsigned long ) TRANCE_NOEXCEPT;
 
+    // Boost.Operators, subtractable requires
     friend integer_type &
     operator-=( integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
     friend integer_type &
     operator-=( integer_type &, unsigned long ) TRANCE_NOEXCEPT;
 
+    // Boost.Operators, multipliable requires
     friend integer_type &
     operator*=( integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
     friend integer_type &
@@ -189,19 +209,17 @@ public:
     //friend integer_type &
     //operator*=( integer_type &rop, unsigned long op ) TRANCE_NOEXCEPT;
 
-    friend bool
-    operator==( const integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
-    friend bool
-    operator==( const integer_type &, double ) TRANCE_NOEXCEPT;
-    friend bool
-    operator==( double, const integer_type & ) TRANCE_NOEXCEPT;
+    // Boost.Operators, dividable requires
+    friend integer_type &
+    operator/=( integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
+    friend integer_type &
+    operator/=( integer_type &, unsigned long ) TRANCE_NOEXCEPT;
 
-    friend bool
-    operator<( const integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
-    friend bool
-    operator<( const integer_type &, double ) TRANCE_NOEXCEPT;
-    friend bool
-    operator<( double, const integer_type & ) TRANCE_NOEXCEPT;
+    // Boost.Operators, modable requires
+    friend integer_type &
+    operator%=( integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
+    friend integer_type &
+    operator%=( integer_type &, unsigned long ) TRANCE_NOEXCEPT;
 
     template < typename _CharT, typename _Traits >
     friend ::std::basic_ostream< _CharT, _Traits > &
@@ -212,6 +230,36 @@ public:
     //friend ::std::basic_istream< _CharT, _Traits > &
     //operator>>( ::std::basic_istream< _CharT, _Traits > &, integer_type & );
 };
+
+bool
+operator<( const integer_type &_x, const integer_type &_y ) TRANCE_NOEXCEPT
+{
+    return mpz_cmp( _x._M_internal, _y._M_internal ) < 0;
+}
+
+bool
+operator<( const integer_type &_x, double _y ) TRANCE_NOEXCEPT
+{
+    return mpz_cmp_d( _x._M_internal, _y ) < 0;
+}
+
+bool
+operator>( const integer_type &_x, double _y ) TRANCE_NOEXCEPT
+{
+    return mpz_cmp_d( _x._M_internal, _y ) > 0;
+}
+
+bool
+operator==( const integer_type &_x, const integer_type &_y ) TRANCE_NOEXCEPT
+{
+    return !mpz_cmp( _x._M_internal, _y._M_internal );
+}
+
+bool
+operator==( const integer_type &_x, double _y ) TRANCE_NOEXCEPT
+{
+    return !mpz_cmp_d( _x._M_internal, _y );
+}
 
 integer_type &
 operator+=( integer_type &rop, const integer_type &op ) TRANCE_NOEXCEPT
@@ -262,40 +310,32 @@ operator*=( integer_type &rop, signed long op ) TRANCE_NOEXCEPT
 //    return rop;
 //}
 
-bool
-operator==( const integer_type &_x, const integer_type &_y ) TRANCE_NOEXCEPT
+integer_type &
+operator/=( integer_type &_n, const integer_type &_d ) TRANCE_NOEXCEPT
 {
-    return !mpz_cmp( _x._M_internal, _y._M_internal );
+    mpz_divexact( _n._M_internal, _n._M_internal, _d._M_internal );
+    return _n;
 }
 
-bool
-operator==( const integer_type &_x, double _y ) TRANCE_NOEXCEPT
+integer_type &
+operator/=( integer_type &_n, unsigned long _d ) TRANCE_NOEXCEPT
 {
-    return !mpz_cmp_d( _x._M_internal, _y );
+    mpz_divexact_ui( _n._M_internal, _n._M_internal, _d );
+    return _n;
 }
 
-bool
-operator==( double _x, const integer_type &_y ) TRANCE_NOEXCEPT
+integer_type &
+operator%=( integer_type &_n, const integer_type &_d ) TRANCE_NOEXCEPT
 {
-    return _y == _x;
+    mpz_mod( _n._M_internal, _n._M_internal, _d._M_internal );
+    return _n;
 }
 
-bool
-operator<( const integer_type &_x, const integer_type &_y ) TRANCE_NOEXCEPT
+integer_type &
+operator%=( integer_type &_n, unsigned long _d ) TRANCE_NOEXCEPT
 {
-    return mpz_cmp( _x._M_internal, _y._M_internal ) < 0;
-}
-
-bool
-operator<( const integer_type &_x, double _y ) TRANCE_NOEXCEPT
-{
-    return mpz_cmp_d( _x._M_internal, _y ) < 0;
-}
-
-bool
-operator<( double _x, const integer_type &_y ) TRANCE_NOEXCEPT
-{
-    return mpz_cmp_d( _y._M_internal, _x ) > 0;
+    mpz_mod_ui( _n._M_internal, _n._M_internal, _d );
+    return _n;
 }
 
 template < typename _CharT, typename _Traits >
