@@ -170,6 +170,20 @@ public:
         mpz_swap( _M_internal, rop._M_internal );
     }
 
+    integer_type
+    operator+( void ) const TRANCE_NOEXCEPT
+    {
+        return *this;
+    }
+
+    integer_type
+    operator-( void ) const TRANCE_NOEXCEPT
+    {
+        integer_type _tmp;
+        mpz_neg( _tmp._M_internal, _M_internal );
+        return _tmp;
+    }
+
     operator safe_bool_t( void ) const TRANCE_NOEXCEPT
     {
         return safe_bool( !!*this );
