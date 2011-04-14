@@ -156,10 +156,10 @@ public:
     //}
 
     void
-    reset( /*const*/ char *str, int base = 10 )
+    reset( const char *str, int base = 10 )
     {
         _init();
-        mpz_set_str( _M_internal, str, base );
+        mpz_set_str( _M_internal, const_cast< char * >( str ), base );
         // TODO: check error
     }
 
