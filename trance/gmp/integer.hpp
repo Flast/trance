@@ -44,17 +44,17 @@ namespace gmp
 
 //template < typename Alloc >
 class integer_type
-  : private ::boost::totally_ordered< integer_type >,
-    private ::boost::totally_ordered< integer_type, double >,
-    // +=, -=, *=, /=, %=
-    private ::boost::integer_arithmetic< integer_type >,
-    private ::boost::integer_arithmetic< integer_type, double >,
-    private ::boost::subtractable2_left< integer_type, double >,
-    private ::boost::dividable2_left< integer_type, double >,
-    private ::boost::modable2_left< integer_type, double >,
-    // &=, |=, ^=
+  : // <, <=, >, >=, ==, !=, +=, -=, *=, /=, %=, +, -, *, /, %
+    private ::boost::ordered_euclidean_ring_operators< integer_type >,
+    private ::boost::ordered_euclidean_ring_operators< integer_type, double >,
+    // ++, --
+    private ::boost::unit_steppable< integer_type >,
+    // <<, <<=, >>, >>=
+    //private ::boost::shiftable< integer_type >,
+    //private ::boost::shiftable< integer_type, signed long >,
+    // &=, |=, ^=, &, |, ^
     private ::boost::bitwise< integer_type >,
-    private ::boost::bitwise< integer_type, signed long >
+    private ::boost::bitwise< integer_type, unsigned long >
 {
     typedef mpz_t _internal_type;
 
@@ -138,19 +138,19 @@ public:
     //    mpz_set_ui( _M_internal, op );
     //}
 
-    void
-    reset( signed long op ) TRANCE_NOEXCEPT
-    {
-        _init();
-        mpz_set_si( _M_internal, op );
-    }
-
     //void
-    //reset( double op ) TRANCE_NOEXCEPT
+    //reset( signed long op ) TRANCE_NOEXCEPT
     //{
     //    _init();
-    //    mpz_set_d( _M_internal, op );
+    //    mpz_set_si( _M_internal, op );
     //}
+
+    void
+    reset( double op ) TRANCE_NOEXCEPT
+    {
+        _init();
+        mpz_set_d( _M_internal, op );
+    }
 
     void
     reset( const char *str, int base = 10 )
@@ -174,6 +174,22 @@ public:
         integer_type _tmp;
         mpz_neg( _tmp._M_internal, _M_internal );
         return _tmp;
+    }
+
+    // Boost.Operators, incrementable requires
+    integer_type &
+    operator++( void ) TRANCE_NOEXCEPT
+    {
+        *this += 1;
+        return *this;
+    }
+
+    // Boost.Operators, decrementable requires
+    integer_type &
+    operator--( void ) TRANCE_NOEXCEPT
+    {
+        *this -= 1;
+        return *this;
     }
 
     operator safe_bool_t( void ) const TRANCE_NOEXCEPT
