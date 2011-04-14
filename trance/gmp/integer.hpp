@@ -33,7 +33,7 @@
 
 #include <trance/as_const.hpp>
 #include <trance/safe_bool.hpp>
-#include <trance/initialized_integral.hpp>
+#include <trance/integral_init.hpp>
 
 #include <trance/gmp/config.hpp>
 
@@ -60,7 +60,7 @@ class integer_type
     typedef mpz_t _internal_type;
 
     _internal_type _M_internal;
-    initialized_integral< bool, false > _M_is_initialized;
+    integral_init< bool, false > _M_is_initialized;
 
 private:
     void
