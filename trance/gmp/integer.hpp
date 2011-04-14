@@ -30,12 +30,9 @@
 
 #include <boost/operators.hpp>
 
-#ifndef TRANCE_GMP_DO_NOT_USE_HEADER
-#   include <gmp.h>
-#   define TRANCE_GMP_DO_NOT_USE_HEADER
-#endif // TRANCE_GMP_DO_NOT_USE_HEADER
-
 #include <trance/as_const.hpp>
+
+#include <trance/gmp/config.hpp>
 
 namespace trance
 {
