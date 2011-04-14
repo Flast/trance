@@ -31,6 +31,7 @@
 #include <boost/operators.hpp>
 
 #include <trance/as_const.hpp>
+#include <trance/safe_bool.hpp>
 
 #include <trance/gmp/config.hpp>
 
@@ -167,6 +168,11 @@ public:
     swap( integer_type &rop ) TRANCE_NOEXCEPT
     {
         mpz_swap( _M_internal, rop._M_internal );
+    }
+
+    operator safe_bool_t( void ) const TRANCE_NOEXCEPT
+    {
+        return safe_bool( !!*this );
     }
 
     bool
