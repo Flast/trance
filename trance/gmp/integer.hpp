@@ -26,6 +26,7 @@
 #include <trance/config.hpp>
 
 #include <cstring>
+#include <cmath>
 #include <iosfwd>
 
 #include <boost/operators.hpp>
@@ -48,6 +49,9 @@ class integer_type
     // +=, -=, *=, /=, %=
     private ::boost::integer_arithmetic< integer_type >,
     private ::boost::integer_arithmetic< integer_type, double >,
+    private ::boost::subtractable2_left< integer_type, double >,
+    private ::boost::dividable2_left< integer_type, double >,
+    private ::boost::modable2_left< integer_type, double >,
     // &=, |=, ^=
     private ::boost::bitwise< integer_type >,
     private ::boost::bitwise< integer_type, signed long >
@@ -84,27 +88,19 @@ public:
     // default ctor
     integer_type( void ) TRANCE_NOEXCEPT
       : _M_is_initialized( false )
-    {
-        reset();
-    }
+    { reset(); }
 
     integer_type( const integer_type &op ) TRANCE_NOEXCEPT
       : _M_is_initialized( false )
-    {
-        reset( op );
-    }
+    { reset( op ); }
 
     template < typename T >
     integer_type( const T &op ) TRANCE_NOEXCEPT
       : _M_is_initialized( false )
-    {
-        reset( op );
-    }
+    { reset( op ); }
 
     ~integer_type( void ) TRANCE_NOEXCEPT
-    {
-        _clear();
-    }
+    { _clear(); }
 
     integer_type &
     operator=( const integer_type &op ) TRANCE_NOEXCEPT
@@ -166,15 +162,11 @@ public:
 
     void
     swap( integer_type &rop ) TRANCE_NOEXCEPT
-    {
-        mpz_swap( _M_internal, rop._M_internal );
-    }
+    { mpz_swap( _M_internal, rop._M_internal ); }
 
     integer_type
     operator+( void ) const TRANCE_NOEXCEPT
-    {
-        return *this;
-    }
+    { return *this; }
 
     integer_type
     operator-( void ) const TRANCE_NOEXCEPT
@@ -185,15 +177,11 @@ public:
     }
 
     operator safe_bool_t( void ) const TRANCE_NOEXCEPT
-    {
-        return safe_bool( !!*this );
-    }
+    { return safe_bool( !!*this ); }
 
     bool
     operator!( void ) const TRANCE_NOEXCEPT
-    {
-        return *this == 0;
-    }
+    { return *this == 0; }
 
     // Boost.Operators, less_than_comparable requires
     friend bool
@@ -213,19 +201,19 @@ public:
     friend integer_type &
     operator+=( integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
     friend integer_type &
-    operator+=( integer_type &, unsigned long ) TRANCE_NOEXCEPT;
+    operator+=( integer_type &, double ) TRANCE_NOEXCEPT;
 
     // Boost.Operators, subtractable requires
     friend integer_type &
     operator-=( integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
     friend integer_type &
-    operator-=( integer_type &, unsigned long ) TRANCE_NOEXCEPT;
+    operator-=( integer_type &, double ) TRANCE_NOEXCEPT;
 
     // Boost.Operators, multipliable requires
     friend integer_type &
     operator*=( integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
     friend integer_type &
-    operator*=( integer_type &, signed long ) TRANCE_NOEXCEPT;
+    operator*=( integer_type &, double ) TRANCE_NOEXCEPT;
     //friend integer_type &
     //operator*=( integer_type &rop, unsigned long op ) TRANCE_NOEXCEPT;
 
@@ -233,13 +221,13 @@ public:
     friend integer_type &
     operator/=( integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
     friend integer_type &
-    operator/=( integer_type &, unsigned long ) TRANCE_NOEXCEPT;
+    operator/=( integer_type &, double ) TRANCE_NOEXCEPT;
 
     // Boost.Operators, modable requires
     friend integer_type &
     operator%=( integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
     friend integer_type &
-    operator%=( integer_type &, unsigned long ) TRANCE_NOEXCEPT;
+    operator%=( integer_type &, double ) TRANCE_NOEXCEPT;
 
     // Boost.Operators, bitwise requires
     friend integer_type &
@@ -261,33 +249,23 @@ public:
 
 inline bool
 operator<( const integer_type &_x, const integer_type &_y ) TRANCE_NOEXCEPT
-{
-    return mpz_cmp( _x._M_internal, _y._M_internal ) < 0;
-}
+{ return mpz_cmp( _x._M_internal, _y._M_internal ) < 0; }
 
 inline bool
 operator<( const integer_type &_x, double _y ) TRANCE_NOEXCEPT
-{
-    return mpz_cmp_d( _x._M_internal, _y ) < 0;
-}
+{ return mpz_cmp_d( _x._M_internal, _y ) < 0; }
 
 inline bool
 operator>( const integer_type &_x, double _y ) TRANCE_NOEXCEPT
-{
-    return mpz_cmp_d( _x._M_internal, _y ) > 0;
-}
+{ return mpz_cmp_d( _x._M_internal, _y ) > 0; }
 
 inline bool
 operator==( const integer_type &_x, const integer_type &_y ) TRANCE_NOEXCEPT
-{
-    return !mpz_cmp( _x._M_internal, _y._M_internal );
-}
+{ return !mpz_cmp( _x._M_internal, _y._M_internal ); }
 
 inline bool
 operator==( const integer_type &_x, double _y ) TRANCE_NOEXCEPT
-{
-    return !mpz_cmp_d( _x._M_internal, _y );
-}
+{ return !mpz_cmp_d( _x._M_internal, _y ); }
 
 inline integer_type &
 operator+=( integer_type &rop, const integer_type &op ) TRANCE_NOEXCEPT
@@ -297,9 +275,11 @@ operator+=( integer_type &rop, const integer_type &op ) TRANCE_NOEXCEPT
 }
 
 inline integer_type &
-operator+=( integer_type &rop, unsigned long op ) TRANCE_NOEXCEPT
+operator+=( integer_type &rop, double op ) TRANCE_NOEXCEPT
 {
-    mpz_add_ui( rop._M_internal, rop._M_internal, op );
+    typedef void _add_func( mpz_ptr, mpz_srcptr, unsigned long );
+    _add_func &_add = op >= 0.0 ? mpz_add_ui : mpz_sub_ui;
+    _add( rop._M_internal, rop._M_internal, abs( op ) );
     return rop;
 }
 
@@ -311,9 +291,11 @@ operator-=( integer_type &rop, const integer_type &op ) TRANCE_NOEXCEPT
 }
 
 inline integer_type &
-operator-=( integer_type &rop, unsigned long op ) TRANCE_NOEXCEPT
+operator-=( integer_type &rop, double op ) TRANCE_NOEXCEPT
 {
-    mpz_sub_ui( rop._M_internal, rop._M_internal, op );
+    typedef void _sub_func( mpz_ptr, mpz_srcptr, unsigned long );
+    _sub_func &_sub = op >= 0.0 ? mpz_sub_ui : mpz_add_ui;
+    _sub( rop._M_internal, rop._M_internal, abs( op ) );
     return rop;
 }
 
@@ -325,7 +307,7 @@ operator*=( integer_type &rop, const integer_type &op ) TRANCE_NOEXCEPT
 }
 
 inline integer_type &
-operator*=( integer_type &rop, signed long op ) TRANCE_NOEXCEPT
+operator*=( integer_type &rop, double op ) TRANCE_NOEXCEPT
 {
     mpz_mul_si( rop._M_internal, rop._M_internal, op );
     return rop;
@@ -346,9 +328,10 @@ operator/=( integer_type &_n, const integer_type &_d ) TRANCE_NOEXCEPT
 }
 
 inline integer_type &
-operator/=( integer_type &_n, unsigned long _d ) TRANCE_NOEXCEPT
+operator/=( integer_type &_n, double _d ) TRANCE_NOEXCEPT
 {
-    mpz_divexact_ui( _n._M_internal, _n._M_internal, _d );
+    const integer_type &_tmp = _d >= 0.0 ? _n : -_n;
+    mpz_divexact_ui( _n._M_internal, _tmp._M_internal, abs( _d ) );
     return _n;
 }
 
@@ -360,9 +343,10 @@ operator%=( integer_type &_n, const integer_type &_d ) TRANCE_NOEXCEPT
 }
 
 inline integer_type &
-operator%=( integer_type &_n, unsigned long _d ) TRANCE_NOEXCEPT
+operator%=( integer_type &_n, double _d ) TRANCE_NOEXCEPT
 {
-    mpz_mod_ui( _n._M_internal, _n._M_internal, _d );
+    const integer_type &_tmp = _d >= 0.0 ? _n : -_n;
+    mpz_mod_ui( _n._M_internal, _tmp._M_internal, abs( _d ) );
     return _n;
 }
 
@@ -404,7 +388,6 @@ operator<<( ::std::basic_ostream< _CharT, _Traits > &ostr,
     ostr << as_const( str );
 
     _free( str, ::std::strlen( str ) + 1 );
-
     return ostr;
 }
 
