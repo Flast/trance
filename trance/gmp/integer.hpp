@@ -33,6 +33,7 @@
 
 #include <trance/as_const.hpp>
 #include <trance/safe_bool.hpp>
+#include <trance/initialized_integral.hpp>
 
 #include <trance/gmp/config.hpp>
 
@@ -59,7 +60,7 @@ class integer_type
     typedef mpz_t _internal_type;
 
     _internal_type _M_internal;
-    bool           _M_is_initialized;
+    initialized_integral< bool, false > _M_is_initialized;
 
 private:
     void
@@ -87,16 +88,13 @@ public:
 
     // default ctor
     integer_type( void ) TRANCE_NOEXCEPT
-      : _M_is_initialized( false )
     { reset(); }
 
     integer_type( const integer_type &op ) TRANCE_NOEXCEPT
-      : _M_is_initialized( false )
     { reset( op ); }
 
     template < typename T >
     integer_type( const T &op ) TRANCE_NOEXCEPT
-      : _M_is_initialized( false )
     { reset( op ); }
 
     ~integer_type( void ) TRANCE_NOEXCEPT
