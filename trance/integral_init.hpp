@@ -1,4 +1,4 @@
-// trance config.hpp - Initialized integral value
+// trance integral_init.hpp - Initialized integral value
 //
 // Copyright (c) 2011 - 2011 Kohei Takahashi (Flast)
 //
@@ -20,8 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef IG_TRANCE_INITIALIZED_INTEGRAL_HPP_ONCE_
-#define IG_TRANCE_INITIALIZED_INTEGRAL_HPP_ONCE_
+#ifndef IG_TRANCE_INTEGRAL_INIT_HPP_ONCE_
+#define IG_TRANCE_INTEGRAL_INIT_HPP_ONCE_
 
 #include <trance/config.hpp>
 
@@ -29,16 +29,16 @@ namespace trance
 {
 
 template < typename T, T _value >
-struct initialized_integral
+struct integral_init
 {
     T _M_value;
 
     TRANCE_CONSTEXPR
-    initialized_integral( void )
+    integral_init( void )
       : _M_value( _value ) {};
 
     TRANCE_CONSTEXPR
-    initialized_integral( const T &value )
+    integral_init( const T &value )
       : _M_value( value ) {};
 
     operator T &( void ) TRANCE_NOEXCEPT
@@ -50,5 +50,5 @@ struct initialized_integral
 
 } // namespace trance
 
-#endif // IG_TRANCE_INITIALIZED_INTEGRAL_HPP_ONCE_
+#endif // IG_TRANCE_INTEGRAL_INIT_HPP_ONCE_
 
