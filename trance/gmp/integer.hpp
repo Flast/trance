@@ -386,11 +386,7 @@ operator>>=( integer_type &op, signed int _n ) TRANCE_NOEXCEPT
     if ( _n < 0 )
     { return op <<= -_n; }
     else if ( _n > 0 )
-    {
-        integer_type _tmp = 1;
-        _tmp <<= _n;
-        op /= _tmp;
-    }
+    { mpz_tdiv_q_2exp( op._M_internal, op._M_internal, _n ); }
     return op;
 }
 
