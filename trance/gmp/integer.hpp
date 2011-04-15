@@ -51,8 +51,8 @@ class integer_type
     // ++, --
     private ::boost::unit_steppable< integer_type >,
     // <<, <<=, >>, >>=
-    //private ::boost::shiftable< integer_type >,
-    //private ::boost::shiftable< integer_type, signed long >,
+    private ::boost::shiftable< integer_type >,
+    private ::boost::shiftable< integer_type, signed long >,
     // &=, |=, ^=, &, |, ^
     private ::boost::bitwise< integer_type >,
     private ::boost::bitwise< integer_type, unsigned long >
@@ -243,6 +243,12 @@ public:
     friend integer_type &
     operator%=( integer_type &, double ) TRANCE_NOEXCEPT;
 
+    // Boost.Operators, shiftable requires
+    friend integer_type &
+    operator<<=( integer_type &, signed int ) TRANCE_NOEXCEPT;
+    friend integer_type &
+    operator>>=( integer_type &, signed int ) TRANCE_NOEXCEPT;
+
     // Boost.Operators, bitwise requires
     friend integer_type &
     operator&=( integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
@@ -362,6 +368,30 @@ operator%=( integer_type &_n, double _d ) TRANCE_NOEXCEPT
     const integer_type &_tmp = _d >= 0.0 ? _n : -_n;
     mpz_mod_ui( _n._M_internal, _tmp._M_internal, abs( _d ) );
     return _n;
+}
+
+inline integer_type &
+operator<<=( integer_type &op, signed int _n ) TRANCE_NOEXCEPT
+{
+    if ( _n < 0 )
+    { return op >>= -_n; }
+    else if ( _n > 0 )
+    { mpz_mul_2exp( op._M_internal, op._M_internal, _n ); }
+    return op;
+}
+
+inline integer_type &
+operator>>=( integer_type &op, signed int _n ) TRANCE_NOEXCEPT
+{
+    if ( _n < 0 )
+    { return op <<= -_n; }
+    else if ( _n > 0 )
+    {
+        integer_type _tmp = 1;
+        _tmp <<= _n;
+        op /= _tmp;
+    }
+    return op;
 }
 
 inline integer_type &
