@@ -173,7 +173,7 @@ class _type_info_impl
 {
     template < typename >
     friend const type_info &
-    _type_id_by_type( void );
+    _typeid_by_type( void );
 
     typedef char * _demangled_name_type;
 
