@@ -36,20 +36,53 @@ namespace trance
 namespace iostreams
 {
 
-#define STRING_MANIPS_COUNT 4
-#define STRING_MANIPS     \
-  (                       \
-    ( reset , "[0m"  ), \
-    ( red   , "[31m" ), \
-    ( green , "[32m" ), \
-    ( orange, "[33m" ), \
-    (                  )  \
-  )                       \
+#define STRING_MANIPS_COUNT 1
+#define STRING_MANIPS   \
+  (                     \
+    ( reset, "[0m" ), \
+())                     \
 
 #define BOOST_PP_ITERATION_PARAMS_1 \
   ( 3, ( 0, BOOST_PP_DEC( STRING_MANIPS_COUNT ), <trance/iostreams/detail/manip_string.hpp> ) )
 #include BOOST_PP_ITERATE()
+#undef STRING_MANIPS
+#undef STRING_MANIPS_COUNT
 
+#define STRING_MANIPS_COUNT 8
+#define STRING_MANIPS           \
+  (                             \
+    ( black     , "[0;30m" ), \
+    ( red       , "[0;31m" ), \
+    ( green     , "[0;32m" ), \
+    ( brown     , "[0;33m" ), \
+    ( blue      , "[0;34m" ), \
+    ( purple    , "[0;35m" ), \
+    ( cyan      , "[0;36m" ), \
+    ( light_gray, "[0;37m" ), \
+())                             \
+
+#define BOOST_PP_ITERATION_PARAMS_1 \
+  ( 3, ( 0, BOOST_PP_DEC( STRING_MANIPS_COUNT ), <trance/iostreams/detail/manip_string.hpp> ) )
+#include BOOST_PP_ITERATE()
+#undef STRING_MANIPS
+#undef STRING_MANIPS_COUNT
+
+#define STRING_MANIPS_COUNT 8
+#define STRING_MANIPS           \
+  (                             \
+    ( dark_gray   , "[1;30m" ), \
+    ( light_red   , "[1;31m" ), \
+    ( light_green , "[1;32m" ), \
+    ( yellow      , "[1;33m" ), \
+    ( light_blue  , "[1;34m" ), \
+    ( light_purple, "[1;35m" ), \
+    ( light_cyan  , "[1;36m" ), \
+    ( white       , "[1;37m" ), \
+())                             \
+
+#define BOOST_PP_ITERATION_PARAMS_1 \
+  ( 3, ( 0, BOOST_PP_DEC( STRING_MANIPS_COUNT ), <trance/iostreams/detail/manip_string.hpp> ) )
+#include BOOST_PP_ITERATE()
 #undef STRING_MANIPS
 #undef STRING_MANIPS_COUNT
 
