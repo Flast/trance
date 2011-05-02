@@ -39,7 +39,9 @@ template < typename _CharTraits >
 inline OSTREAM( _CharTraits ) &
 MANIP_NAME( OSTREAM( _CharTraits ) &_ostr ) TRANCE_NOEXCEPT
 {
-    _ostr << CHAR_PREFIX( MANIP );
+    _ostr <<
+      CHAR_PREFIX( "\x1b" )
+      CHAR_PREFIX( MANIP );
     return _ostr;
 }
 

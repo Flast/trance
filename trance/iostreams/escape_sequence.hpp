@@ -38,17 +38,22 @@ namespace trance
 namespace iostreams
 {
 
-//#define STRING_MANIPS_COUNT 1
-//#define STRING_MANIPS     \
-//  (                       \
-//    ( reset, "\x1b[0m" ), \
-//())                       \
-//
-//#define BOOST_PP_ITERATION_PARAMS_1 \
-//  ( 3, ( 0, BOOST_PP_DEC( STRING_MANIPS_COUNT ), <trance/iostreams/detail/manip_string.hpp> ) )
-//#include BOOST_PP_ITERATE()
-//#undef STRING_MANIPS
-//#undef STRING_MANIPS_COUNT
+#define STRING_MANIPS_COUNT 6
+#define STRING_MANIPS      \
+  (                        \
+    ( clear_below, "[0J" ), \
+    ( clear_above, "[1J" ), \
+    ( clear      , "[2J" ), \
+    ( clear_right, "[0K" ), \
+    ( clear_left , "[1K" ), \
+    ( clear_line , "[2K" ), \
+())                        \
+
+#define BOOST_PP_ITERATION_PARAMS_1 \
+  ( 3, ( 0, BOOST_PP_DEC( STRING_MANIPS_COUNT ), <trance/iostreams/detail/manip_string.hpp> ) )
+#include BOOST_PP_ITERATE()
+#undef STRING_MANIPS
+#undef STRING_MANIPS_COUNT
 
 struct attribute
 {
