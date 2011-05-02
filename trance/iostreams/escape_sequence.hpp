@@ -52,7 +52,7 @@ namespace iostreams
 
 struct attribute
 {
-  typedef ::boost::uint32_t value_type;
+    typedef ::boost::uint32_t value_type;
 
     BOOST_STATIC_CONSTEXPR value_type reset = ~static_cast< ::boost::uint32_t >( 0u ); // [0m
 
@@ -92,11 +92,31 @@ struct _attribute_forwarder
 { attribute::value_type _M_value; };
 
 inline size_t
-_find_ntz( ::boost::uint8_t _x )
+_find_ntz( ::boost::uint8_t _x ) TRANCE_NOEXCEPT
 {
     ::std::size_t i = 0;
     for ( ; !( _x & 1 ); ++i, _x >>= 1 );
     return i;
+}
+
+inline ::boost::uint8_t
+_mask( attribute::value_type _x ) TRANCE_NOEXCEPT
+{ return _x & ( ( 1u << 8 ) - 1 ); }
+
+#define INSERT_SEMICOLON_WHEN( begin, itr ) \
+  if ( begin == itr ) {} else *itr++ =';'
+
+template < typename _CharT >
+inline void
+_insert_when( ::boost::uint8_t pred,
+  _CharT * const begin, _CharT *&itr, const _CharT value ) TRANCE_NOEXCEPT
+{
+    if ( !pred )
+    { return; }
+
+    INSERT_SEMICOLON_WHEN( begin, itr );
+    *itr++ = value;
+    *itr++ = '0' + _find_ntz( pred );
 }
 
 template < typename _CharT, typename _Traits >
@@ -105,44 +125,31 @@ operator<<( ::std::basic_ostream< _CharT, _Traits > &_ostr,
   const _attribute_forwarder &_af ) TRANCE_NOEXCEPT
 {
     _CharT _buf[ 16 ] = { '\x1b', '[' };
-    ::std::size_t idx = 2;
+    _CharT *itr = _buf + 2;
     if ( _af._M_value == attribute::reset )
-    { _buf[ idx++ ] = '0'; }
+    { *itr++ = '0'; }
     else
     {
-        if ( ::boost::uint8_t _tmp = _af._M_value & attribute::_effect_mask )
+        if ( ::boost::uint8_t _tmp = _mask( _af._M_value ) )
         {
-            _CharT c = '1';
-            for ( ; _tmp; _tmp >>= 1, ++c )
+            for ( _CharT c = '1'; _tmp; _tmp >>= 1, ++c )
             {
-                if ( _tmp & 1 )
-                {
-                    if ( idx != 2 )
-                    { _buf[ idx++ ] = ';'; }
-                    _buf[ idx++ ] = c;
-                }
+                if ( _tmp & ~1 )
+                { continue; }
+
+                INSERT_SEMICOLON_WHEN( _buf, itr );
+                *itr++ = c;
             }
         }
-        if ( ::boost::uint8_t _tmp = ( _af._M_value & attribute::_color_mask ) >> 8 )
-        {
-            if ( idx != 2 )
-            { _buf[ idx++ ] = ';'; }
-            _buf[ idx++ ] = '3';
-            _buf[ idx++ ] = '0' + _find_ntz( _tmp );
-        }
-        if ( ::boost::uint8_t _tmp = ( _af._M_value & attribute::_backcolor_mask ) >> 16 )
-        {
-            if ( idx != 2 )
-            { _buf[ idx++ ] = ';'; }
-            _buf[ idx++ ] = '4';
-            _buf[ idx++ ] = '0' + _find_ntz( _tmp );
-        }
+        _insert_when( _mask( _af._M_value >>  8 ), _buf, itr, '3' );
+        _insert_when( _mask( _af._M_value >> 16 ), _buf, itr, '4' );
     }
 
-    _buf[ idx ] = 'm';
+    *itr = 'm';
     _ostr << _buf;
     return _ostr;
 }
+#undef INSERT_SEMICOLON_WHEN
 
 } // iostreams_detail
 
