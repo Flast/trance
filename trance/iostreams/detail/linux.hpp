@@ -24,7 +24,7 @@
 #define IG_TRANCE_IOSTREAMS_DETAIL_LINUX_HPP_ONCE_
 
 #define TRANCE_IOSTREAMS_CLEAR_MANIPS_INFO      \
-  ( <trance/iostreams/detail/manip_string.hpp>, \
+  ( "trance/iostreams/detail/string_manip.hpp", \
     6,                                          \
     (                                           \
       ( clear_below, "[0J" ),                   \
