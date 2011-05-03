@@ -157,6 +157,7 @@ class type_info
     typedef typeinfo_detail::_type_info< TRANCE_HAS_TYPEINFO_HASH_CODE > _base_t;
 
 protected:
+    explicit
     type_info( const ::std::type_info &_ti )
       : _base_t( _ti ) {}
 
@@ -195,7 +196,15 @@ class _type_info_impl
       : type_info( _ti ),
         _M_demangled_name( _demangle( _ti ) ) {}
 
+    struct _generics_typeid_invoke_tag {};
+
 public:
+    BOOST_STATIC_CONSTEXPR _generics_typeid_invoke_tag _generics_typeid_invoke;
+
+    _type_info_impl( _generics_typeid_invoke_tag, const ::std::type_info &_ti )
+      : type_info( _ti ),
+        _M_demangled_name( _demangle( _ti ) ) {}
+
     ~_type_info_impl( void ) TRANCE_NOEXCEPT
     {
 #if defined( BOOST_GNU_STDLIB ) && BOOST_GNU_STDLIB
@@ -208,10 +217,18 @@ public:
     { return _M_demangled_name; }
 };
 
-#define TRANCE_TYPEID_BY_TYPE( _type_id )                       \
-  static_cast< const ::trance::type_info & >(                   \
-    ::trance::typeinfo_detail::_typeid_by_type< _type_id >()    \
-  )                                                             \
+#define TRANCE_TYPEID( _typeid_or_expr )                                   \
+  static_cast< const ::trance::type_info & >(                              \
+    ::trance::typeinfo_detail::_type_info_impl(                            \
+      ::trance::typeinfo_detail::_type_info_impl::_generics_typeid_invoke, \
+      typeid( _typeid_or_expr )                                            \
+    )                                                                      \
+  )                                                                        \
+
+#define TRANCE_TYPEID_BY_TYPE( _typeid )                    \
+  static_cast< const ::trance::type_info & >(               \
+    ::trance::typeinfo_detail::_typeid_by_type< _typeid >() \
+  )                                                         \
 
 #define TRANCE_TYPEID_BY_EXPR( _Expr )          \
   static_cast< const ::trance::type_info & >(   \
