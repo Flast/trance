@@ -29,31 +29,13 @@
 
 #include <boost/cstdint.hpp>
 
-#include <boost/preprocessor/dec.hpp>
-#include <boost/preprocessor/iterate.hpp>
+#include <trance/iostreams/detail/config.hpp>
 
 namespace trance
 {
 
 namespace iostreams
 {
-
-#define STRING_MANIPS_COUNT 6
-#define STRING_MANIPS      \
-  (                        \
-    ( clear_below, "[0J" ), \
-    ( clear_above, "[1J" ), \
-    ( clear      , "[2J" ), \
-    ( clear_right, "[0K" ), \
-    ( clear_left , "[1K" ), \
-    ( clear_line , "[2K" ), \
-())                        \
-
-#define BOOST_PP_ITERATION_PARAMS_1 \
-  ( 3, ( 0, BOOST_PP_DEC( STRING_MANIPS_COUNT ), <trance/iostreams/detail/manip_string.hpp> ) )
-#include BOOST_PP_ITERATE()
-#undef STRING_MANIPS
-#undef STRING_MANIPS_COUNT
 
 struct attribute
 {
@@ -64,9 +46,9 @@ struct attribute
     BOOST_STATIC_CONSTEXPR value_type highlight = 1u << 0; // [1m
     //BOOST_STATIC_CONSTEXPR value_type ???       = 1u << 1; // [2m
     BOOST_STATIC_CONSTEXPR value_type underline = 1u << 3; // [4m
-    //BOOST_STATIC_CONSTEXPR value_type blink     = 1u << 4; // [5m
+    BOOST_STATIC_CONSTEXPR value_type blink     = 1u << 4; // [5m
     BOOST_STATIC_CONSTEXPR value_type inverse   = 1u << 6; // [7m
-    //BOOST_STATIC_CONSTEXPR value_type invisible = 1u << 7; // [8m or [16m
+    BOOST_STATIC_CONSTEXPR value_type invisible = 1u << 7; // [8m or [16m
     BOOST_STATIC_CONSTEXPR value_type _effect_mask = ( 1u << 8 ) - 1;
 
     BOOST_STATIC_CONSTEXPR value_type black  = 1u <<  8; // [30m
@@ -96,71 +78,21 @@ namespace iostreams_detail
 struct _attribute_forwarder
 { attribute::value_type _M_value; };
 
-inline size_t
-_find_ntz( ::boost::uint8_t _x ) TRANCE_NOEXCEPT
-{
-    ::std::size_t i = 0;
-    for ( ; !( _x & 1 ); ++i, _x >>= 1 );
-    return i;
-}
-
-inline ::boost::uint8_t
-_mask( attribute::value_type _x ) TRANCE_NOEXCEPT
-{ return _x & ( ( 1u << 8 ) - 1 ); }
-
-#define INSERT_SEMICOLON_WHEN( begin, itr ) \
-  if ( begin == itr ) {} else *itr++ =';'
-
-template < typename _CharT >
-inline void
-_insert_when( ::boost::uint8_t pred,
-  _CharT * const begin, _CharT *&itr, const _CharT value ) TRANCE_NOEXCEPT
-{
-    if ( !pred )
-    { return; }
-
-    INSERT_SEMICOLON_WHEN( begin, itr );
-    *itr++ = value;
-    *itr++ = '0' + _find_ntz( pred );
-}
-
 template < typename _CharT, typename _Traits >
 inline ::std::basic_ostream< _CharT, _Traits > &
-operator<<( ::std::basic_ostream< _CharT, _Traits > &_ostr,
-  const _attribute_forwarder &_af ) TRANCE_NOEXCEPT
-{
-    _CharT _buf[ 16 ] = { '\x1b', '[' };
-    _CharT *itr = _buf + 2;
-    if ( _af._M_value == attribute::reset )
-    { *itr++ = '0'; }
-    else
-    {
-        if ( ::boost::uint8_t _tmp = _mask( _af._M_value ) )
-        {
-            for ( _CharT c = '1'; _tmp; _tmp >>= 1, ++c )
-            {
-                if ( _tmp & ~1 )
-                { continue; }
+operator<<( ::std::basic_ostream< _CharT, _Traits > &,
+  const _attribute_forwarder & ) TRANCE_NOEXCEPT;
 
-                INSERT_SEMICOLON_WHEN( _buf, itr );
-                *itr++ = c;
-            }
-        }
-        _insert_when( _mask( _af._M_value >>  8 ), _buf, itr, '3' );
-        _insert_when( _mask( _af._M_value >> 16 ), _buf, itr, '4' );
-    }
-
-    *itr = 'm';
-    _ostr << _buf;
-    return _ostr;
-}
-#undef INSERT_SEMICOLON_WHEN
-
-} // iostreams_detail
+} // namespace iostreams_detail
 
 inline iostreams_detail::_attribute_forwarder
 chattr( attribute::value_type attr = attribute::reset ) TRANCE_NOEXCEPT
 { return { attr }; }
+
+#include TRANCE_IOSTREAMS_CONFIG_PLATFORM
+
+#define ITERATE_MANIPS_INFO TRANCE_IOSTREAMS_CLEAR_MANIPS_INFO
+#include <trance/iostreams/detail/iterate_manips.hpp>
 
 } // namespace iostreams
 
