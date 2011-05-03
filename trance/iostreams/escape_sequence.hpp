@@ -81,7 +81,7 @@ struct _attribute_forwarder
 template < typename _CharT, typename _Traits >
 inline ::std::basic_ostream< _CharT, _Traits > &
 operator<<( ::std::basic_ostream< _CharT, _Traits > &,
-  const _attribute_forwarder & ) TRANCE_NOEXCEPT;
+  const _attribute_forwarder & );
 
 } // namespace iostreams_detail
 

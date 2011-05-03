@@ -32,7 +32,7 @@
 
 template < typename _CharTraits >
 inline OSTREAM( _CharTraits ) &
-MANIP_NAME( OSTREAM( _CharTraits ) &_ostr ) TRANCE_NOEXCEPT
+MANIP_NAME( OSTREAM( _CharTraits ) &_ostr )
 {
     _ostr <<
       CHAR_PREFIX( "\x1b" )

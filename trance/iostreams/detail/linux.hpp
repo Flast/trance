@@ -74,7 +74,7 @@ _insert_when( ::boost::uint8_t pred,
 template < typename _CharT, typename _Traits >
 inline ::std::basic_ostream< _CharT, _Traits > &
 operator<<( ::std::basic_ostream< _CharT, _Traits > &_ostr,
-  const _attribute_forwarder &_af ) TRANCE_NOEXCEPT
+  const _attribute_forwarder &_af )
 {
     _CharT _buf[ 16 ] = { '\x1b', '[' };
     _CharT *itr = _buf + 2;
