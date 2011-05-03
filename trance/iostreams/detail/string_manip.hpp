@@ -22,7 +22,6 @@
 
 #ifdef STRING_MANIP_RECURSIVE
 
-#define i_ BOOST_PP_FRAME_ITERATION( 1 )
 #define j_ BOOST_PP_FRAME_ITERATION( 2 )
 
 #define CHAR_TYPE_PAIR BOOST_PP_TUPLE_ELEM( CHAR_TUPLE_SIZE, j_, CHAR_TUPLE )
@@ -30,10 +29,6 @@
 #define CHAR_PREFIX    BOOST_PP_TUPLE_ELEM( 2, 1, CHAR_TYPE_PAIR )
 
 #define OSTREAM( _Traits ) ::std::basic_ostream< CHAR_TYPE, _Traits >
-
-#define CURRENT_PAIR BOOST_PP_TUPLE_ELEM( STRING_MANIPS_COUNT, i_, STRING_MANIPS )
-#define MANIP_NAME   BOOST_PP_TUPLE_ELEM( 2, 0, CURRENT_PAIR )
-#define MANIP        BOOST_PP_TUPLE_ELEM( 2, 1, CURRENT_PAIR )
 
 template < typename _CharTraits >
 inline OSTREAM( _CharTraits ) &
@@ -45,10 +40,6 @@ MANIP_NAME( OSTREAM( _CharTraits ) &_ostr ) TRANCE_NOEXCEPT
     return _ostr;
 }
 
-#undef MANIP
-#undef MANIP_NAME
-#undef CURRENT_PAIR
-
 #undef OSTREAM
 
 #undef CHAR_PREFIX
@@ -56,7 +47,6 @@ MANIP_NAME( OSTREAM( _CharTraits ) &_ostr ) TRANCE_NOEXCEPT
 #undef CHAR_TYPE_PAIR
 
 #undef j_
-#undef i_
 
 #else // STRING_MANIP_RECURSIVE
 
@@ -64,7 +54,12 @@ MANIP_NAME( OSTREAM( _CharTraits ) &_ostr ) TRANCE_NOEXCEPT
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/tuple/elem.hpp>
 
+#define i_ BOOST_PP_FRAME_ITERATION( 1 )
 #define STRING_MANIP_RECURSIVE
+
+#define CURRENT_PAIR BOOST_PP_TUPLE_ELEM( STRING_MANIPS_COUNT, i_, STRING_MANIPS )
+#define MANIP_NAME   BOOST_PP_TUPLE_ELEM( 2, 0, CURRENT_PAIR )
+#define MANIP        BOOST_PP_TUPLE_ELEM( 2, 1, CURRENT_PAIR )
 
 #define CHAR_TUPLE_SIZE TRANCE_IOSTREAMS_CHAR_TUPLE_SIZE
 #define CHAR_TUPLE      TRANCE_IOSTREAMS_CHAR_TUPLE
@@ -72,13 +67,18 @@ MANIP_NAME( OSTREAM( _CharTraits ) &_ostr ) TRANCE_NOEXCEPT
 #define BOOST_PP_ITERATION_PARAMS_2 ( 3, ( \
   0, \
   BOOST_PP_DEC( CHAR_TUPLE_SIZE ), \
-  <trance/iostreams/detail/string_manip.hpp> ) )
+  "trance/iostreams/detail/string_manip.hpp" ) )
 #include BOOST_PP_ITERATE()
 
 #undef CHAR_TUPLE
 #undef CHAR_TUPLE_SIZE
 
+#undef MANIP
+#undef MANIP_NAME
+#undef CURRENT_PAIR
+
 #undef STRING_MANIP_RECURSIVE
+#undef i_
 
 #endif // STRING_MANIP_RECURSIVE
 
