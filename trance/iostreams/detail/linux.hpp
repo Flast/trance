@@ -23,6 +23,8 @@
 #ifndef IG_TRANCE_IOSTREAMS_DETAIL_LINUX_HPP_ONCE_
 #define IG_TRANCE_IOSTREAMS_DETAIL_LINUX_HPP_ONCE_
 
+#include <boost/preprocessor/cat.hpp>
+
 #define TRANCE_IOSTREAMS_CLEAR_MANIPS_INFO      \
   ( "trance/iostreams/detail/string_manip.hpp", \
     6,                                          \
@@ -35,11 +37,86 @@
       ( clear_line , "[2K" ))                   \
   )                                             \
 
+#define TRANCE_IOSTREAMS_MOVE_IMPL( _suf )      \
+  TRANCE_IOSTREAMS_MANIP_LAMBDA<                \
+    unsigned int,                               \
+    iostreams_detail::_detail::_square_bracket, \
+    iostreams_detail::_detail::_suf             \
+   >                                            \
+
+#define TRANCE_IOSTREAMS_MOVE_1DIM_MANIPS_INFO                \
+  ( "trance/iostreams/detail/param_manip.hpp",                \
+    4,                                                        \
+    (                                                         \
+      ( move_up   , (TRANCE_IOSTREAMS_MOVE_IMPL( _put_A )) ), \
+      ( move_down , (TRANCE_IOSTREAMS_MOVE_IMPL( _put_B )) ), \
+      ( move_right, (TRANCE_IOSTREAMS_MOVE_IMPL( _put_C )) ), \
+      ( move_left , (TRANCE_IOSTREAMS_MOVE_IMPL( _put_D )) )) \
+  )                                                           \
+
 namespace iostreams_detail
 {
 
 namespace _detail
 {
+
+#define _ENTRY_OPERATOR_DETAIL( _suf, _type, _forward )                    \
+  template < typename _CharTraits >                                        \
+  ::std::basic_ostream< _type, _CharTraits > &                             \
+  operator()( ::std::basic_ostream< _type, _CharTraits > &_ostr ) const    \
+  { return _ostr << BOOST_PP_CAT( TRANCE_IOSTREAMS_, _forward )( _suf ); } \
+
+#if defined( BOOST_NO_CHAR16_T ) && defined( BOOST_NO_CHAR32_T )
+// when C++03 mode
+#define _ENTRY_IMPL( _entry, _char )                              \
+  struct _entry                                                   \
+  {                                                               \
+      _ENTRY_OPERATOR_DETAIL( _char, char    , CHAR_FORWARD     ) \
+      _ENTRY_OPERATOR_DETAIL( _char, wchar_t , WCHAR_T_FORWARD  ) \
+  }                                                               \
+
+#elif !defined( BOOST_NO_CHAR16_T ) && defined( BOOST_NO_CHAR32_T )
+// when C++0x with char16_t
+#define _ENTRY_IMPL( _entry, _char )                              \
+  struct _entry                                                   \
+  {                                                               \
+      _ENTRY_OPERATOR_DETAIL( _char, char    , CHAR_FORWARD     ) \
+      _ENTRY_OPERATOR_DETAIL( _char, wchar_t , WCHAR_T_FORWARD  ) \
+      _ENTRY_OPERATOR_DETAIL( _char, char16_t, CHAR16_T_FORWARD ) \
+  }                                                               \
+
+#elif defined( BOOST_NO_CHAR16_T ) && !defined( BOOST_NO_CHAR32_T )
+// when C++0x with char32_t
+#define _ENTRY_IMPL( _entry, _char )                              \
+  struct _entry                                                   \
+  {                                                               \
+      _ENTRY_OPERATOR_DETAIL( _char, char    , CHAR_FORWARD     ) \
+      _ENTRY_OPERATOR_DETAIL( _char, wchar_t , WCHAR_T_FORWARD  ) \
+      _ENTRY_OPERATOR_DETAIL( _char, char32_t, CHAR32_T_FORWARD ) \
+  }                                                               \
+
+#else
+// when C++0x with both
+#define _ENTRY_IMPL( _entry, _char )                              \
+  struct _entry                                                   \
+  {                                                               \
+      _ENTRY_OPERATOR_DETAIL( _char, char    , CHAR_FORWARD     ) \
+      _ENTRY_OPERATOR_DETAIL( _char, wchar_t , WCHAR_T_FORWARD  ) \
+      _ENTRY_OPERATOR_DETAIL( _char, char16_t, CHAR16_T_FORWARD ) \
+      _ENTRY_OPERATOR_DETAIL( _char, char32_t, CHAR32_T_FORWARD ) \
+  }                                                               \
+
+#endif // BOOST_NO_CHAR16_T && BOOST_NO_CHAR32_T
+
+_ENTRY_IMPL( _square_bracket, '[' );
+
+_ENTRY_IMPL( _put_A, 'A' );
+_ENTRY_IMPL( _put_B, 'B' );
+_ENTRY_IMPL( _put_C, 'C' );
+_ENTRY_IMPL( _put_D, 'D' );
+
+#undef _ENTRY_IMPL
+#undef _ENTRY_OPERATOR_DETAIL
 
 inline size_t
 _find_ntz( ::boost::uint8_t _x ) TRANCE_NOEXCEPT

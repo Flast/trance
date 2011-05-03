@@ -1,4 +1,4 @@
-// trance string_manip.hpp - String based manipulator
+// trance param_manip.hpp - Parameter based manipulator
 //
 // Copyright (c) 2011 - 2011 Kohei Takahashi (Flast)
 //
@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifdef STRING_MANIP_RECURSIVE
+#ifdef PARAM_MANIP_RECURSIVE
 
 #define j_ BOOST_PP_FRAME_ITERATION( 2 )
 
@@ -30,13 +30,15 @@
 
 #define OSTREAM( _Traits ) ::std::basic_ostream< CHAR_TYPE, _Traits >
 
-template < typename _CharTraits >
+template < typename _CharTraits, TRANCE_IOSTREAMS_PARAM_TEMPLATE_LIST >
 inline OSTREAM( _CharTraits ) &
-MANIP_NAME( OSTREAM( _CharTraits ) &_ostr )
+operator<<( OSTREAM( _CharTraits ) &_ostr,
+  const _param_manip_impl< TRANCE_IOSTREAMS_PARAM_TEMPLATE_ARGS > &_param )
 {
-    _ostr <<
-      CHAR_PREFIX( "\x1b" )
-      CHAR_PREFIX( MANIP );
+    _ostr << CHAR_PREFIX( "\x1b" );
+    _param._M_pref( _ostr );
+    _ostr << _param._M_param;
+    _param._M_suf( _ostr );
     return _ostr;
 }
 
@@ -48,14 +50,14 @@ MANIP_NAME( OSTREAM( _CharTraits ) &_ostr )
 
 #undef j_
 
-#else // STRING_MANIP_RECURSIVE
+#else // PARAM_MANIP_RECURSIVE
 
-#include <boost/preprocessor/dec.hpp>
 #include <boost/preprocessor/cat.hpp>
+#include <boost/preprocessor/dec.hpp>
 #include <boost/preprocessor/tuple/elem.hpp>
 
 #define i_ BOOST_PP_FRAME_ITERATION( 1 )
-#define STRING_MANIP_RECURSIVE
+#define PARAM_MANIP_RECURSIVE
 
 #define CURRENT_PAIR               \
   BOOST_PP_TUPLE_ELEM(             \
@@ -64,7 +66,15 @@ MANIP_NAME( OSTREAM( _CharTraits ) &_ostr )
     TRANCE_IOSTREAMS_MANIPS )      \
 
 #define MANIP_NAME BOOST_PP_TUPLE_ELEM( 2, 0, CURRENT_PAIR )
-#define MANIP      BOOST_PP_TUPLE_ELEM( 2, 1, CURRENT_PAIR )
+#define MANIP_TYPE BOOST_PP_TUPLE_ELEM( 2, 1, CURRENT_PAIR )
+
+typedef ::boost::function_traits< void MANIP_TYPE >::arg1_type MANIP_NAME;
+
+namespace iostreams_detail
+{
+
+namespace _param_detail
+{
 
 #define CHAR_TUPLE_SIZE TRANCE_IOSTREAMS_CHAR_TUPLE_SIZE
 #define CHAR_TUPLE      TRANCE_IOSTREAMS_CHAR_TUPLE
@@ -72,18 +82,22 @@ MANIP_NAME( OSTREAM( _CharTraits ) &_ostr )
 #define BOOST_PP_ITERATION_PARAMS_2 ( 3, ( \
   0, \
   BOOST_PP_DEC( CHAR_TUPLE_SIZE ), \
-  "trance/iostreams/detail/string_manip.hpp" ) )
+  "trance/iostreams/detail/param_manip.hpp" ) )
 #include BOOST_PP_ITERATE()
+
+} // namespace _param_detail
+
+} // namespace iostreams_detail
 
 #undef CHAR_TUPLE
 #undef CHAR_TUPLE_SIZE
 
-#undef MANIP
+#undef MANIP_TYPE
 #undef MANIP_NAME
 #undef CURRENT_PAIR
 
-#undef STRING_MANIP_RECURSIVE
+#undef PARAM_MANIP_RECURSIVE
 #undef i_
 
-#endif // STRING_MANIP_RECURSIVE
+#endif // PARAM_MANIP_RECURSIVE
 

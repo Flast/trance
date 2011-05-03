@@ -25,6 +25,8 @@
 
 #include <trance/config.hpp>
 
+#include <boost/type_traits/function_traits.hpp>
+
 #if defined( linux )     \
  || defined( __linux )   \
  || defined( __linux__ ) \
@@ -93,6 +95,63 @@
   ) \
 
 #endif // BOOST_NO_CHAR16_T && BOOST_NO_CHAR32_T
+
+namespace trance
+{
+
+namespace iostreams
+{
+
+namespace iostreams_detail
+{
+
+namespace _param_detail
+{
+
+#define TRANCE_IOSTREAMS_MANIP_LAMBDA                \
+  iostreams_detail::_param_detail::_param_manip_impl \
+
+#define TRANCE_IOSTREAMS_PARAM_TEMPLATE_LIST \
+  typename _TIOS_PARAM_PARAM,                \
+  typename _TIOS_PARAM_PREFIXER,             \
+  typename _TIOS_PARAM_SUFFIXER              \
+
+#define TRANCE_IOSTREAMS_PARAM_TEMPLATE_ARGS \
+  _TIOS_PARAM_PARAM,                         \
+  _TIOS_PARAM_PREFIXER,                      \
+  _TIOS_PARAM_SUFFIXER                       \
+
+template <
+  typename _Param,
+  //typename _Delimiter,
+  typename _Prefixer,
+  typename _Suffixer
+>
+struct _param_manip_impl
+{
+    _Param     _M_param;
+    //_Delimiter _M_delimiter;
+    _Prefixer _M_pref;
+    _Suffixer _M_suf;
+
+    explicit
+    _param_manip_impl( const _Param &_x )
+      : _M_param( _x ), //_M_delimiter(),
+        _M_pref(), _M_suf() {}
+
+    _param_manip_impl( const _Param &_x, //_Delimiter _delim,
+      _Prefixer _pref, _Suffixer _suf )
+      : _M_param( _x ), //_M_delimiter( _delim ),
+        _M_pref( _pref ), _M_suf( _suf ) {}
+};
+
+} // namespace _param_detail
+
+} // namespace iostreams_detail
+
+} // namespace iostreams
+
+} // namespace trance
 
 #endif // IG_TRANCE_IOSTREAMS_DETAIL_CONFIG_HPP_ONCE_
 

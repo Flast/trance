@@ -94,6 +94,9 @@ chattr( attribute::value_type attr = attribute::reset ) TRANCE_NOEXCEPT
 #define ITERATE_MANIPS_INFO TRANCE_IOSTREAMS_CLEAR_MANIPS_INFO
 #include <trance/iostreams/detail/iterate_manips.hpp>
 
+#define ITERATE_MANIPS_INFO TRANCE_IOSTREAMS_MOVE_1DIM_MANIPS_INFO
+#include <trance/iostreams/detail/iterate_manips.hpp>
+
 } // namespace iostreams
 
 } // namespace trance
