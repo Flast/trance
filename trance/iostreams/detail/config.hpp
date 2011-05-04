@@ -96,6 +96,17 @@
 
 #endif // BOOST_NO_CHAR16_T && BOOST_NO_CHAR32_T
 
+#define TRANCE_IOSTREAMS_GET_CHAR_PAIR( i_ ) \
+  BOOST_PP_TUPLE_ELEM(                       \
+    TRANCE_IOSTREAMS_CHAR_TUPLE_SIZE,        \
+    i_,                                      \
+    TRANCE_IOSTREAMS_CHAR_TUPLE )            \
+
+#define TRANCE_IOSTREAMS_GET_CHAR_TYPE( i_ ) \
+  BOOST_PP_TUPLE_ELEM( 2, 0, TRANCE_IOSTREAMS_GET_CHAR_PAIR( i_ ) )
+#define TRANCE_IOSTREAMS_GET_CHAR_FORWARD( i_ ) \
+  BOOST_PP_TUPLE_ELEM( 2, 1, TRANCE_IOSTREAMS_GET_CHAR_PAIR( i_ ) )
+
 namespace trance
 {
 

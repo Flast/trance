@@ -24,6 +24,8 @@
 #define IG_TRANCE_IOSTREAMS_DETAIL_LINUX_HPP_ONCE_
 
 #include <boost/preprocessor/cat.hpp>
+#include <boost/preprocessor/repeat.hpp>
+#include <boost/preprocessor/tuple/elem.hpp>
 
 #define TRANCE_IOSTREAMS_CLEAR_MANIPS_INFO      \
   ( "trance/iostreams/detail/string_manip.hpp", \
@@ -59,6 +61,32 @@ namespace iostreams_detail
 
 namespace _detail
 {
+
+#define ESC_SEQ_INITIALIZER_DEF( _unused_z, i_, _unused_param )   \
+  template < typename _CharTraits >                               \
+  inline ::std::basic_ostream<                                    \
+    TRANCE_IOSTREAMS_GET_CHAR_TYPE( i_ ),                         \
+    _CharTraits                                                   \
+  > &                                                             \
+  _esc_seq_initializer(                                           \
+    ::std::basic_ostream<                                         \
+      TRANCE_IOSTREAMS_GET_CHAR_TYPE( i_ ),                       \
+      _CharTraits                                                 \
+    > &_ostr )                                                    \
+  {                                                               \
+      _ostr << TRANCE_IOSTREAMS_GET_CHAR_FORWARD( i_ )( '\x1b' ); \
+      return _ostr;                                               \
+  }                                                               \
+
+BOOST_PP_REPEAT( TRANCE_IOSTREAMS_CHAR_TUPLE_SIZE, ESC_SEQ_INITIALIZER_DEF, _ )
+
+#undef ESC_SEQ_INITIALIZER_DEF
+
+// nothing to do
+template < typename _CharT, typename _CharTraits >
+inline ::std::basic_ostream< _CharT, _CharTraits > &
+_esc_seq_finalizer( ::std::basic_ostream< _CharT, _CharTraits > &_ostr )
+{ return _ostr; }
 
 #define _ENTRY_OPERATOR_DETAIL( _suf, _type, _forward )                    \
   template < typename _CharTraits >                                        \

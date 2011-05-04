@@ -24,29 +24,28 @@
 
 #define j_ BOOST_PP_FRAME_ITERATION( 2 )
 
-#define CHAR_TYPE_PAIR BOOST_PP_TUPLE_ELEM( CHAR_TUPLE_SIZE, j_, CHAR_TUPLE )
-#define CHAR_TYPE      BOOST_PP_TUPLE_ELEM( 2, 0, CHAR_TYPE_PAIR )
-#define CHAR_PREFIX    BOOST_PP_TUPLE_ELEM( 2, 1, CHAR_TYPE_PAIR )
-
-#define OSTREAM( _Traits ) ::std::basic_ostream< CHAR_TYPE, _Traits >
+#define OSTREAM( _Traits )                \
+  ::std::basic_ostream<                   \
+    TRANCE_IOSTREAMS_GET_CHAR_TYPE( j_ ), \
+    _Traits                               \
+  >                                       \
 
 template < typename _CharTraits, TRANCE_IOSTREAMS_PARAM_TEMPLATE_LIST >
 inline OSTREAM( _CharTraits ) &
 operator<<( OSTREAM( _CharTraits ) &_ostr,
   const _param_manip_impl< TRANCE_IOSTREAMS_PARAM_TEMPLATE_ARGS > &_param )
 {
-    _ostr << CHAR_PREFIX( "\x1b" );
-    _param._M_pref( _ostr );
-    _ostr << _param._M_param;
-    _param._M_suf( _ostr );
+    namespace iostreams = ::trance::iostreams;
+    using namespace iostreams::iostreams_detail::_detail;
+    _esc_seq_initializer( _ostr );
+      _param._M_pref( _ostr );
+        _ostr << _param._M_param;
+      _param._M_suf( _ostr );
+    _esc_seq_finalizer( _ostr );
     return _ostr;
 }
 
 #undef OSTREAM
-
-#undef CHAR_PREFIX
-#undef CHAR_TYPE
-#undef CHAR_TYPE_PAIR
 
 #undef j_
 
@@ -76,21 +75,15 @@ namespace iostreams_detail
 namespace _param_detail
 {
 
-#define CHAR_TUPLE_SIZE TRANCE_IOSTREAMS_CHAR_TUPLE_SIZE
-#define CHAR_TUPLE      TRANCE_IOSTREAMS_CHAR_TUPLE
-
 #define BOOST_PP_ITERATION_PARAMS_2 ( 3, ( \
   0, \
-  BOOST_PP_DEC( CHAR_TUPLE_SIZE ), \
+  BOOST_PP_DEC( TRANCE_IOSTREAMS_CHAR_TUPLE_SIZE ), \
   "trance/iostreams/detail/param_manip.hpp" ) )
 #include BOOST_PP_ITERATE()
 
 } // namespace _param_detail
 
 } // namespace iostreams_detail
-
-#undef CHAR_TUPLE
-#undef CHAR_TUPLE_SIZE
 
 #undef MANIP_TYPE
 #undef MANIP_NAME
