@@ -45,18 +45,10 @@ namespace typeinfo_detail
 
 class _type_info_base
 {
-    type_info_base( const _type_info_base & )
-#if !defined( BOOST_NO_DELETED_FUNCTIONS )
-      = delete
-#endif // BOOST_NO_DELETED_FUNCTIONS
-      ;
+    type_info_base( const _type_info_base & ) TRANCE_DELETED_FUNCTION;
 
     _type_info_base &
-    operator=( const _type_info_base & )
-#if !defined( BOOST_NO_DELETED_FUNCTIONS )
-      = delete
-#endif // BOOST_NO_DELETED_FUNCTIONS
-      ;
+    operator=( const _type_info_base & ) TRANCE_DELETED_FUNCTION;
 
 protected:
     const ::std::type_info &_M_internal;

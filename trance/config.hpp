@@ -36,6 +36,12 @@
 // work around for noexcept
 #define TRANCE_NOEXCEPT
 
+#if !defined( BOOST_NO_DELETED_FUNCTIONS )
+#   define TRANCE_DELETED_FUNCTION = delete
+#else
+#   define TRANCE_DELETED_FUNCTION
+#endif // !BOOST_NO_DELETED_FUNCTIONS
+
 // Standard Library features
 
 #if !defined( BOOST_NO_0X_HDR_TYPE_TRAITS )
