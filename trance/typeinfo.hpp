@@ -27,6 +27,7 @@
 
 #include <cstddef>
 #include <typeinfo>
+#include <string>
 
 #if defined( BOOST_GNU_STDLIB ) && BOOST_GNU_STDLIB
 #   include <cstdlib>
@@ -34,6 +35,10 @@
 #endif // BOOST_GNU_STDLIB
 
 #include <boost/type_traits/integral_constant.hpp>
+
+// Boost 1.46.1's scoped_ptr.hpp missing detail/utilities.hpp for detail::do_swap.
+#include <boost/interprocess/detail/utilities.hpp>
+#include <boost/interprocess/smart_ptr/scoped_ptr.hpp>
 
 #include <trance/detail/typeof.hpp>
 
@@ -155,7 +160,7 @@ protected:
 
 public:
     virtual const char *
-    demangled_name( void ) const = 0;
+    demangled_name( void ) const TRANCE_NOEXCEPT = 0;
 };
 
 namespace typeinfo_detail
@@ -168,16 +173,43 @@ class _type_info_impl
     friend const type_info &
     _typeid_by_type( void );
 
-    typedef char * _demangled_name_type;
+    typedef ::std::string _demangled_name_type;
 
     _demangled_name_type _M_demangled_name;
+
+    struct _deleter_with_free
+    {
+        inline void
+        operator()( void *ptr )
+        { ::std::free( ptr ); }
+    };
 
     static inline _demangled_name_type
     _demangle( const ::std::type_info &_ti )
     {
         const char * const mangled_name = _ti.name();
 #if defined( BOOST_GNU_STDLIB ) && BOOST_GNU_STDLIB
-        return __cxxabiv1::__cxa_demangle( mangled_name, 0, 0, 0 );
+        using ::boost::interprocess::scoped_ptr;
+        using ::__cxxabiv1::__cxa_demangle;
+
+        typedef scoped_ptr< char, _deleter_with_free > demangled_ptr;
+
+        int status;
+        demangled_ptr demangled( __cxa_demangle( mangled_name, 0, 0, &status ) );
+        const _demangled_name_type demangled_name( demangled.get() ? demangled.get() : "" );
+
+        switch ( status )
+        {
+          case 0: break; // no error
+
+            // for more detail, see cxxabi.h
+          case -1: // throw std::bad_alloc with std::bad_typeid
+          case -2: // throw std::invalid_argument with std::bad_typeid
+          case -3: // throw std::invalid_argument with std::bad_typeid
+          default: // throw std::logic_error with std::bad_typeid
+            throw; // XXX: temporary
+        }
+        return demangled_name;
 #else
         return mangled_name;
 #endif // BOOST_GNU_STDLIB
@@ -197,16 +229,9 @@ public:
       : type_info( _ti ),
         _M_demangled_name( _demangle( _ti ) ) {}
 
-    ~_type_info_impl( void ) TRANCE_NOEXCEPT
-    {
-#if defined( BOOST_GNU_STDLIB ) && BOOST_GNU_STDLIB
-        ::std::free( _M_demangled_name );
-#endif // BOOST_GNU_STDLIB
-    }
-
     const char *
-    demangled_name( void ) const
-    { return _M_demangled_name; }
+    demangled_name( void ) const TRANCE_NOEXCEPT
+    { return _M_demangled_name.c_str(); }
 };
 
 #define TRANCE_TYPEID( _typeid_or_expr )                                   \
