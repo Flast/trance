@@ -184,6 +184,7 @@ public:
 namespace typeinfo_detail
 {
 
+#if defined( BOOST_GNU_STDLIB ) && BOOST_GNU_STDLIB
 template < typename _Exception >
 /*[[noreturn]]*/ inline void
 _throw_bad_typeid_with( const char *_mes )
@@ -228,6 +229,7 @@ struct _messaged_bad_alloc
     what( void ) const TRANCE_EMPTY_THROW_SPEC_OR_NOEXCEPT
     { return _M_what_message; }
 };
+#endif
 
 inline ::std::string
 _demangle( const ::std::type_info &_ti )
@@ -289,6 +291,10 @@ class _type_info_impl
       : type_info( _ti ),
         _M_demangled_name( _demangle( _ti ) ) {}
 
+    _type_info_impl( const _type_info_impl &_impl )
+      : type_info( _impl._M_internal ),
+        _M_demangled_name( _impl._M_demangled_name ) {}
+
     struct _generics_typeid_invoke_tag {};
 
 public:
@@ -305,15 +311,19 @@ public:
     const char *
     demangled_name( void ) const TRANCE_NOEXCEPT
     { return _M_demangled_name.c_str(); }
+
+    const _type_info_impl
+    _internal_use_only_do_clone( void ) const
+    { return *this; }
 };
 
 #define TRANCE_TYPEID( _typeid_or_expr )                                   \
-  static_cast< const ::trance::type_info & >(                              \
+  static_cast< const ::trance::typeinfo_detail::_type_info_impl & >(       \
     ::trance::typeinfo_detail::_type_info_impl(                            \
       ::trance::typeinfo_detail::_type_info_impl::_generics_typeid_invoke, \
       typeid( _typeid_or_expr )                                            \
     )                                                                      \
-  )                                                                        \
+  )._internal_use_only_do_clone()                                          \
 
 #define TRANCE_TYPEID_BY_TYPE( _typeid )                    \
   static_cast< const ::trance::type_info & >(               \
