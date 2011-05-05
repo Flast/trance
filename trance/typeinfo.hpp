@@ -223,7 +223,11 @@ class _type_info_impl
     struct _generics_typeid_invoke_tag {};
 
 public:
-    BOOST_STATIC_CONSTEXPR _generics_typeid_invoke_tag _generics_typeid_invoke;
+    BOOST_STATIC_CONSTEXPR _generics_typeid_invoke_tag _generics_typeid_invoke
+#if !defined( BOOST_NO_CONSTEXPR )
+      = _generics_typeid_invoke_tag{}
+#endif // BOOST_NO_CONSTEXPR
+      ;
 
     _type_info_impl( _generics_typeid_invoke_tag, const ::std::type_info &_ti )
       : type_info( _ti ),
