@@ -36,6 +36,11 @@
 // work around for noexcept
 #define TRANCE_NOEXCEPT
 
+// work around for throw() or noexcept
+// note: std::bad_alloc's members are granted throw() in C++98/03,
+//       but in C++0x(a.k.a C++11), are granted noexcept.
+#define TRANCE_EMPTY_THROW_SPEC_OR_NOEXCEPT throw()
+
 #if !defined( BOOST_NO_DELETED_FUNCTIONS )
 #   define TRANCE_DELETED_FUNCTION = delete
 #else

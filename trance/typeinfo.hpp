@@ -26,19 +26,19 @@
 #include <trance/config.hpp>
 
 #include <cstddef>
-#include <typeinfo>
 #include <string>
+#include <typeinfo>
 
 #if defined( BOOST_GNU_STDLIB ) && BOOST_GNU_STDLIB
 #   include <cstdlib>
+#   include <new>
+#   include <stdexcept>
 #   include <cxxabi.h>
-#endif // BOOST_GNU_STDLIB
-
-#include <boost/type_traits/integral_constant.hpp>
 
 // Boost 1.46.1's scoped_ptr.hpp missing detail/utilities.hpp for detail::do_swap.
-#include <boost/interprocess/detail/utilities.hpp>
-#include <boost/interprocess/smart_ptr/scoped_ptr.hpp>
+#   include <boost/interprocess/detail/utilities.hpp>
+#   include <boost/interprocess/smart_ptr/scoped_ptr.hpp>
+#endif // BOOST_GNU_STDLIB
 
 #include <trance/detail/typeof.hpp>
 
@@ -163,8 +163,115 @@ public:
     demangled_name( void ) const TRANCE_NOEXCEPT = 0;
 };
 
+class bad_typeid
+{
+    const char * const _M_what_message;
+
+protected:
+    TRANCE_CONSTEXPR explicit
+    bad_typeid( const char *_mes ) TRANCE_NOEXCEPT
+      : _M_what_message( _mes ) {}
+
+public:
+    TRANCE_CONSTEXPR const char *
+    what( void ) const TRANCE_NOEXCEPT
+    { return _M_what_message; }
+
+    /*[[noreturn]]*/ virtual void
+    rethrow_composite_error( void ) const = 0;
+};
+
 namespace typeinfo_detail
 {
+
+template < typename _Exception >
+/*[[noreturn]]*/ inline void
+_throw_bad_typeid_with( const char *_mes )
+{
+    struct _internal_composite_error
+      : public bad_typeid, public _Exception
+    {
+        TRANCE_CONSTEXPR explicit
+        _internal_composite_error( const char *_mes ) TRANCE_NOEXCEPT
+          : bad_typeid( _mes ),
+            _Exception(
+              "Trance.Typeid: "
+              "To process exception correctly, "
+              "catch trance::bad_typeid."
+            ) {}
+
+        /*[[noreturn]]*/ void
+        rethrow_composite_error( void ) const
+        { throw _Exception( bad_typeid::what() ); }
+    };
+
+    throw _internal_composite_error( _mes );
+}
+
+struct _deleter_with_free
+{
+    inline void
+    operator()( void *ptr )
+    { ::std::free( ptr ); }
+};
+
+struct _messaged_bad_alloc
+  : public ::std::bad_alloc
+{
+    const char *_M_what_message;
+
+    explicit
+    _messaged_bad_alloc( const char *_mes ) TRANCE_NOEXCEPT
+      : _M_what_message( _mes ) {}
+
+    const char *
+    what( void ) const TRANCE_EMPTY_THROW_SPEC_OR_NOEXCEPT
+    { return _M_what_message; }
+};
+
+inline ::std::string
+_demangle( const ::std::type_info &_ti )
+{
+    const char * const mangled_name = _ti.name();
+#if defined( BOOST_GNU_STDLIB ) && BOOST_GNU_STDLIB
+    using namespace ::std;
+    using ::abi::__cxa_demangle;
+    using ::boost::interprocess::scoped_ptr;
+
+    typedef scoped_ptr< char, _deleter_with_free > demangled_ptr;
+
+    int status;
+    demangled_ptr demangled( __cxa_demangle( mangled_name, 0, 0, &status ) );
+    const string demangled_name( demangled.get() ? demangled.get() : "" );
+
+    switch ( status )
+    {
+      case 0: break; // no error
+      case -1: // memory allocation faild.
+        _throw_bad_typeid_with< _messaged_bad_alloc >(
+          "Trance.Typeid: abi::__cxa_demangle memory allocation faild."
+        );
+      case -2: // mangled name is not valid name.
+        _throw_bad_typeid_with< invalid_argument >(
+          "Trance.Typeid: Mangled name is not valid name. "
+          "The ABI version is same and correct?"
+        );
+      case -3: // one of the arguments is invalid.
+        _throw_bad_typeid_with< invalid_argument >(
+          "Trance.Typeid: One of the arguments is invalid. "
+          "Please submit a full bug report."
+        );
+      default: // unknown.
+        _throw_bad_typeid_with< logic_error >(
+          "Trance.Typeid: Unknown error occurred. "
+          "Please submit a full bug report."
+        );
+    }
+    return demangled_name;
+#else
+    return mangled_name;
+#endif // BOOST_GNU_STDLIB
+}
 
 class _type_info_impl
   : public type_info
@@ -176,44 +283,6 @@ class _type_info_impl
     typedef ::std::string _demangled_name_type;
 
     _demangled_name_type _M_demangled_name;
-
-    struct _deleter_with_free
-    {
-        inline void
-        operator()( void *ptr )
-        { ::std::free( ptr ); }
-    };
-
-    static inline _demangled_name_type
-    _demangle( const ::std::type_info &_ti )
-    {
-        const char * const mangled_name = _ti.name();
-#if defined( BOOST_GNU_STDLIB ) && BOOST_GNU_STDLIB
-        using ::boost::interprocess::scoped_ptr;
-        using ::__cxxabiv1::__cxa_demangle;
-
-        typedef scoped_ptr< char, _deleter_with_free > demangled_ptr;
-
-        int status;
-        demangled_ptr demangled( __cxa_demangle( mangled_name, 0, 0, &status ) );
-        const _demangled_name_type demangled_name( demangled.get() ? demangled.get() : "" );
-
-        switch ( status )
-        {
-          case 0: break; // no error
-
-            // for more detail, see cxxabi.h
-          case -1: // throw std::bad_alloc with std::bad_typeid
-          case -2: // throw std::invalid_argument with std::bad_typeid
-          case -3: // throw std::invalid_argument with std::bad_typeid
-          default: // throw std::logic_error with std::bad_typeid
-            throw; // XXX: temporary
-        }
-        return demangled_name;
-#else
-        return mangled_name;
-#endif // BOOST_GNU_STDLIB
-    }
 
     explicit
     _type_info_impl( const ::std::type_info &_ti )
