@@ -24,36 +24,90 @@
 #define IG_TRANCE_CONFIG_HPP_ONCE_
 
 #include <boost/config.hpp>
+#include <boost/version.hpp>
 
 // Compiler features
 
-#if defined( BOOST_NO_CONSTEXPR )
-#   define TRANCE_CONSTEXPR
-#else
+// TODO: check supported version
+#if !defined( BOOST_NO_NULLPTR )
+#   define TRANCE_HAS_NULLPTR
+#endif // BOOST_NO_NULLPTR
+
+// TODO: check supported version
+#if !defined( BOOST_NO_CONSTEXPR )
+#   define TRANCE_HAS_CONSTEXPR
 #   define TRANCE_CONSTEXPR constexpr
+#else
+#   define TRANCE_CONSTEXPR
 #endif // BOOST_NO_CONSTEXPR
 
-// work around for noexcept
-#define TRANCE_NOEXCEPT
+// TODO: check supported version
+#if !defined( BOOST_NO_LAMBDAS )
+#   define TRANCE_HAS_LAMBDAS
+#endif // BOOST_NO_LAMBDAS
 
-// work around for throw() or noexcept
+// TODO: check supported version
+#if !defined( BOOST_NO_RVALUE_REFERENCES )
+#   define TRANCE_HAS_RVALUE_REFERENCES
+#endif // BOOST_NO_RVALUE_REFERENCES
+
+// TODO: check supported version
+#if !defined( BOOST_NO_EXPLICIT_CONVERSION_OPERATORS )
+#   define TRANCE_HAS_EXPLICIT_CONVERSION_OPERATORS
+#endif // !BOOST_NO_EXPLICIT_CONVERSION_OPERATORS
+
+// BOOST_NO_NOEXCEPT requires Boost 1.47 or later.
+#if !BOOST_VERSION < 104700 || defined( BOOST_NO_NOEXCEPT )
+#   define TRANCE_HAS_NOEXCEPT
+#   define TRANCE_NOEXCEPT noexcept
+#   define TRANCE_THROW_SPEC_OR_NOEXCEPT noexcept
+#else
+#   define TRANCE_NOEXCEPT
 // note: std::bad_alloc's members are granted throw() in C++98/03,
 //       but in C++0x(a.k.a C++11), are granted noexcept.
-#define TRANCE_EMPTY_THROW_SPEC_OR_NOEXCEPT throw()
+#   define TRANCE_THROW_SPEC_OR_NOEXCEPT throw()
+#endif // BOOST_NO_NOEXCEPT
 
+// TODO: check supported version
 #if !defined( BOOST_NO_DELETED_FUNCTIONS )
+#   define TRANCE_HAS_DELETED_FUNCTIONS
 #   define TRANCE_DELETED_FUNCTION = delete
 #else
 #   define TRANCE_DELETED_FUNCTION
-#endif // !BOOST_NO_DELETED_FUNCTIONS
+#endif // BOOST_NO_DELETED_FUNCTIONS
+
+// TODO: check supported version
+#if !defined( BOOST_NO_CHAR16_T )
+#   define TRANCE_HAS_CHAR16_T
+#endif // BOOST_NO_CHAR16_T
+
+// TODO: check supported version
+#if !defined( BOOST_NO_CHAR32_T )
+#   define TRANCE_HAS_CHAR32_T
+#endif // BOOST_NO_CHAR32_T
 
 // Standard Library features
 
+// TODO: check supported version
 #if !defined( BOOST_NO_0X_HDR_TYPE_TRAITS )
+#   define TRANCE_HAS_0X_HDR_TYPE_TRAITS
 #   define TRANCE_TYPE_TRAITS_NAMESPACE ::std
+#   define TRANCE_TYPE_TRAITS_HDR <type_traits>
 #else
 #   define TRANCE_TYPE_TRAITS_NAMESPACE ::boost
-#endif // !BOOST_NO_0X_HDR_TYPE_TRAITS
+#   define TRANCE_TYPE_TRAITS_HDR <boost/type_traits.hpp>
+#endif // BOOST_NO_0X_HDR_TYPE_TRAITS
+
+// TODO: check supported version
+#if !defined( BOOST_NO_0X_HDR_ARRAY )
+#   define TRANCE_HAS_0X_HDR_ARRAY
+#   define TRANCE_ARRAY_NAMESPACE ::std
+#   define TRANCE_ARRAY_HDR <array>
+#else
+#   define TRANCE_ARRAY_NAMESPACE ::boost
+#   define TRANCE_ARRAY_HDR <boost/array.hpp>
+
+#endif // BOOST_NO_0X_HDR_ARRAY
 
 #endif // IG_TRANCE_CONFIG_HPP_ONCE_
 

@@ -226,7 +226,7 @@ struct _messaged_bad_alloc
       : _M_what_message( _mes ) {}
 
     const char *
-    what( void ) const TRANCE_EMPTY_THROW_SPEC_OR_NOEXCEPT
+    what( void ) const TRANCE_THROW_SPEC_OR_NOEXCEPT
     { return _M_what_message; }
 };
 #endif
@@ -299,9 +299,9 @@ class _type_info_impl
 
 public:
     BOOST_STATIC_CONSTEXPR _generics_typeid_invoke_tag _generics_typeid_invoke
-#if !defined( BOOST_NO_CONSTEXPR )
+#if defined( TRANCE_HAS_CONSTEXPR )
       = _generics_typeid_invoke_tag{}
-#endif // BOOST_NO_CONSTEXPR
+#endif // TRANCE_HAS_CONSTEXPR
       ;
 
     _type_info_impl( _generics_typeid_invoke_tag, const ::std::type_info &_ti )

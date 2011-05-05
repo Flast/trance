@@ -174,11 +174,11 @@ public:
     safely_ptr( void ) TRANCE_NOEXCEPT
       : _M_ptr() {}
 
-#if !defined( BOOST_NO_NULLPTR )
+#if defined( TRANCE_HAS_NULLPTR )
     TRANCE_CONSTEXPR
     safely_ptr( ::std::nullptr_t )
       : _M_ptr() {}
-#endif // !BOOST_NO_NULLPTR
+#endif // TRANCE_HAS_NULLPTR
 
     explicit
     safely_ptr( pointer _ptr ) TRANCE_NOEXCEPT
@@ -191,14 +191,14 @@ public:
     safely_ptr( const safely_ptr< U > &_ptr ) TRANCE_NOEXCEPT
       : _M_ptr( static_pointer_cast< element_type >( _ptr ).get() ) {}
 
-#if defined( BOOST_HAS_RVALUE_REFS )
+#if defined( TRANCE_HAS_RVALUE_REFERENCES )
     safely_ptr( safely_ptr &&_ptr ) TRANCE_NOEXCEPT
       : _M_ptr( _ptr.get() ) {}
 
     template < typename U >
     safely_ptr( safely_ptr< U > &&_ptr ) TRANCE_NOEXCEPT
       : _M_ptr( static_pointer_cast< element_type >( _ptr ).get() ) {}
-#endif // !BOOST_NO_RVALUE_REFERENCES
+#endif // TRANCE_HAS_RVALUE_REFERENCES
 
     safely_ptr &
     operator=( pointer _ptr ) TRANCE_NOEXCEPT
@@ -222,7 +222,7 @@ public:
         return *this;
     }
 
-#if !defined( BOOST_NO_RVALUE_REFERENCES )
+#if defined( TRANCE_HAS_RVALUE_REFERENCES )
     safely_ptr &
     operator=( safely_ptr &&_ptr ) TRANCE_NOEXCEPT
     {
@@ -237,7 +237,7 @@ public:
         static_pointer_cast< element_type >( _ptr ).swap( this );
         return *this;
     }
-#endif // !BOOST_NO_RVALUE_REFERENCES
+#endif // TRANCE_HAS_RVALUE_REFERENCES
 
     reference
     operator*( void ) const
@@ -253,14 +253,14 @@ public:
         return get();
     }
 
-#if !defined( BOOST_NO_EXPLICIT_CONVERSION_OPERATORS )
+#if defined( TRANCE_HAS_EXPLICIT_CONVERSION_OPERATORS )
     explicit
     operator bool( void ) const TRANCE_NOEXCEPT
     { return get() == pointer() ? true : false; }
 #else
     operator safe_bool_t( void ) const TRANCE_NOEXCEPT
     { return safe_bool( get() != pointer() ); }
-#endif // !BOOST_NO_EXPLICIT_CONVERSION_OPERATORS
+#endif // !TRANCE_HAS_EXPLICIT_CONVERSION_OPERATORS
 
     pointer
     get( void ) const TRANCE_NOEXCEPT
@@ -309,7 +309,7 @@ public:
     safely_ptr( void ) TRANCE_NOEXCEPT
       : _M_ptr() {}
 
-#if !defined( BOOST_NO_NULLPTR )
+#if defined( TRANCE_HAS_NULLPTR )
     TRANCE_CONSTEXPR
     safely_ptr( ::std::nullptr_t )
       : _M_ptr() {}
@@ -333,7 +333,7 @@ public:
     template < typename U >
     safely_ptr( safely_ptr< U > &&_ptr ) TRANCE_NOEXCEPT
       : _M_ptr( static_pointer_cast< element_type[] >( _ptr ).get() ) {}
-#endif // !BOOST_NO_RVALUE_REFERENCES
+#endif // !TRANCE_HAS_RVALUE_REFERENCES
 
     safely_ptr &
     operator=( pointer _ptr ) TRANCE_NOEXCEPT
@@ -357,7 +357,7 @@ public:
         return *this;
     }
 
-#if !defined( BOOST_NO_RVALUE_REFERENCES )
+#if defined( TRANCE_HAS_RVALUE_REFERENCES )
     safely_ptr &
     operator=( safely_ptr &&_ptr ) TRANCE_NOEXCEPT
     {
@@ -372,7 +372,7 @@ public:
         static_pointer_cast< element_type[] >( _ptr ).swap( this );
         return *this;
     }
-#endif // !BOOST_NO_RVALUE_REFERENCES
+#endif // TRANCE_HAS_RVALUE_REFERENCES
 
     reference
     operator[]( ::std::size_t _x ) const
@@ -381,14 +381,14 @@ public:
         return get()[ _x ];
     }
 
-#if !defined( BOOST_NO_EXPLICIT_CONVERSION_OPERATORS )
+#if defined( TRANCE_HAS_EXPLICIT_CONVERSION_OPERATORS )
     explicit
     operator bool( void ) const TRANCE_NOEXCEPT
     { return get() == pointer() ? true : false; }
-#else
+#endif
     operator safe_bool_t( void ) const TRANCE_NOEXCEPT
     { return safe_bool( get() != pointer() ); }
-#endif // !BOOST_NO_EXPLICIT_CONVERSION_OPERATORS
+#endif // TRANCE_HAS_EXPLICIT_CONVERSION_OPERATORS
 
     pointer
     get( void ) const TRANCE_NOEXCEPT
@@ -425,7 +425,7 @@ operator==( const safely_ptr< T > &_x,
   const safely_ptr< U > &_y ) TRANCE_NOEXCEPT
 { return _x.get() == _y.get(); }
 
-#if !defined( BOOST_NO_NULLPTR )
+#if defined( TRANCE_HAS_NULLPTR )
 template < typename T >
 inline bool
 operator==( const safely_ptr< T > &_x, ::std::nullptr_t ) TRANCE_NOEXCEPT
@@ -435,7 +435,7 @@ template < typename T >
 inline bool
 operator==( ::std::nullptr_t, const safely_ptr< T > &_x ) TRANCE_NOEXCEPT
 { return !_x; }
-#endif // !BOOST_NO_NULLPTR
+#endif // TRANCE_HAS_NULLPTR
 
 template < typename T, typename U >
 inline bool
@@ -443,7 +443,7 @@ operator!=( const safely_ptr< T > &_x,
   const safely_ptr< U > &_y ) TRANCE_NOEXCEPT
 { return !( _x == _y ); }
 
-#if !defined( BOOST_NO_NULLPTR )
+#if defined( TRANCE_HAS_NULLPTR )
 template < typename T >
 inline bool
 operator!=( const safely_ptr< T > &_x, ::std::nullptr_t ) TRANCE_NOEXCEPT
@@ -453,7 +453,7 @@ template < typename T >
 inline bool
 operator!=( ::std::nullptr_t, const safely_ptr< T > &_x ) TRANCE_NOEXCEPT
 { return static_cast< bool >( _x ); }
-#endif // !BOOST_NO_NULLPTR
+#endif // TRANCE_HAS_NULLPTR
 
 template < typename T, typename U >
 inline bool
@@ -467,7 +467,7 @@ operator<( const safely_ptr< T > &_x,
     return ::std::less< _CT >( _x.get(), _y.get() );
 }
 
-#if !defined( BOOST_NO_NULLPTR )
+#if defined( TRANCE_HAS_NULLPTR )
 template < typename T >
 inline bool
 operator<( const safely_ptr< T > &_x, ::std::nullptr_t ) TRANCE_NOEXCEPT
@@ -483,7 +483,7 @@ operator<( ::std::nullptr_t, const safely_ptr< T > &_x ) TRANCE_NOEXCEPT
     typedef BOOST_DEDUCED_TYPENAME safely_ptr< T >::pointer pointer;
     return ::std::less< pointer >()( nullptr, _x.get() );
 }
-#endif // !BOOST_NO_NULLPTR
+#endif // TRANCE_HAS_NULLPTR
 
 template < typename T, typename U >
 inline bool
@@ -491,7 +491,7 @@ operator<=( const safely_ptr< T > &_x,
   const safely_ptr< U > &_y ) TRANCE_NOEXCEPT
 { return !( _y < _x ); }
 
-#if !defined( BOOST_NO_NULLPTR )
+#if defined( TRANCE_HAS_NULLPTR )
 template < typename T >
 inline bool
 operator<=( const safely_ptr< T > &_x, ::std::nullptr_t ) TRANCE_NOEXCEPT
@@ -501,7 +501,7 @@ template < typename T >
 inline bool
 operator<=( ::std::nullptr_t, const safely_ptr< T > &_x ) TRANCE_NOEXCEPT
 { return !( _x < nullptr ); }
-#endif // !BOOST_NO_NULLPTR
+#endif // TRANCE_HAS_NULLPTR
 
 template < typename T, typename U >
 inline bool
@@ -509,7 +509,7 @@ operator>( const safely_ptr< T > &_x,
   const safely_ptr< U > &_y ) TRANCE_NOEXCEPT
 { return _y < _x; }
 
-#if !defined( BOOST_NO_NULLPTR )
+#if defined( TRANCE_HAS_NULLPTR )
 template < typename T >
 inline bool
 operator>( const safely_ptr< T > &_x, ::std:nullptr_t ) TRANCE_NOEXCEPT
@@ -519,7 +519,7 @@ template < typename T >
 inline bool
 operator>( ::std::nullptr_t, const safely_ptr< T > &_x ) TRANCE_NOEXCEPT
 { return _x < nullptr; }
-#endif // !BOOST_NO_NULLPTR
+#endif // TRANCE_HAS_NULLPTR
 
 template < typename T, typename U >
 inline bool
@@ -527,7 +527,7 @@ operator>=( const safely_ptr< T > &_x,
   const safely_ptr< U > &_y ) TRANCE_NOEXCEPT
 { return !( _x < _y ); }
 
-#if !defined( BOOST_NO_NULLPTR )
+#if defined( TRANCE_HAS_NULLPTR )
 template < typename T >
 inline bool
 operator>=( const safely_ptr< T > &_x, ::std::nullptr_t ) TRANCE_NOEXCEPT
@@ -537,7 +537,7 @@ template < typename T >
 inline bool
 operator>=( ::std::nullptr_t, const safely_ptr< T > &_x ) TRANCE_NOEXCEPT
 { return !( nullptr < _x ); }
-#endif // !BOOST_NO_NULLPTR
+#endif // TRANCE_HAS_NULLPTR
 
 } // namespace trance
 
