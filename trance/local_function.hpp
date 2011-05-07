@@ -42,30 +42,30 @@
 //  void ( *pf1 )( const char * ) = function; // implicitly convertion
 //  void ( *pf2 )( const char * ) = &function; // also explicitly can
 
-#if defined( BOOST_NO_LAMBDAS )
+#if defined( TRANCE_HAS_LAMBDAS )
 
-// If compiler does not support C++0x style lambda expression,
-// use static member function to emulate the (non-capture) lambda.
-#define TRANCE_LOCAL_FUNCTION( _lf_return, _lf_function, _lf_args, _lf_body )   \
-  struct BOOST_PP_CAT( _trance_local_function_impl_, __LINE__ )                 \
-  {                                                                             \
-      static inline _lf_return                                                  \
-      _function _lf_args                                                        \
-      _lf_body                                                                  \
-  };                                                                            \
-  _lf_return ( &_lf_function )_lf_args =                                        \
-    BOOST_PP_CAT( _trance_local_function_impl_, __LINE__ )::_function;          \
+// Use reference because to be able to get pointer to function.
+#define TRANCE_LOCAL_FUNCTION( _lf_return, _lf_function, _lf_args, _lf_body ) \
+  _lf_return ( &_lf_function )_lf_args =                                      \
+    *static_cast< _lf_return ( * )_lf_args >(                                 \
+      []_lf_args -> _lf_return                                                \
+      _lf_body );                                                             \
 
 #else
 
-// Use reference because to be able to get pointer to function.
-#define TRANCE_LOCAL_FUNCTION( _lf_return, _lf_function, _lf_args, _lf_body )   \
-  _lf_return ( &_lf_function )_lf_args =                                        \
-    *static_cast< _lf_return ( * )_lf_args >(                                   \
-      []_lf_args -> _lf_return                                                  \
-      _lf_body );                                                               \
+// If compiler does not support C++0x style lambda expression,
+// use static member function to emulate the (non-capture) lambda.
+#define TRANCE_LOCAL_FUNCTION( _lf_return, _lf_function, _lf_args, _lf_body ) \
+  struct BOOST_PP_CAT( _trance_local_function_impl_, __LINE__ )               \
+  {                                                                           \
+      static inline _lf_return                                                \
+      _function _lf_args                                                      \
+      _lf_body                                                                \
+  };                                                                          \
+  _lf_return ( &_lf_function )_lf_args =                                      \
+    BOOST_PP_CAT( _trance_local_function_impl_, __LINE__ )::_function;        \
 
-#endif // BOOST_NO_LAMBDAS
+#endif // TRANCE_HAS_LAMBDAS
 
 #endif // IG_TRANCE_LOCAL_FUNCTION_HPP_ONCE_
 
