@@ -97,18 +97,10 @@ private:
         _M_checker_chain = _tmp;
     }
 
-    leak_checker( const leak_checker & )
-#if !defined( BOOST_NO_DELETED_FUNCTIONS )
-      = delete
-#endif
-      ;
+    leak_checker( const leak_checker & ) TRANCE_DELETED_FUNCTION;
 
     leak_checker &
-    operator=( const leak_checker & )
-#if !defined( BOOST_NO_DELETED_FUNCTIONS )
-      = delete
-#endif
-      ;
+    operator=( const leak_checker & ) TRANCE_DELETED_FUNCTION;
 
     leak_checker    *_M_prev_chain;
     ::std::ostream  *_M_ostr;
@@ -156,16 +148,15 @@ public:
 
     void
     _set_ostream( ::std::ostream &ostr = ::std::cerr )
-    {
-        _M_ostr = &ostr;
-    }
+    { _M_ostr = &ostr; }
 };
 
-#define TRANCE_GMP_ENABLE_LEAK_CHECK()                                      \
-  namespace trance { namespace gmp { namespace memory {                     \
-  leak_checker *leak_checker::_M_checker_chain = 0;                         \
-  } } }                                                                     \
-  typedef ::trance::gmp::memory::leak_checker TRANCE_GMP_LEAK_CHECK_ENABLED \
+#define TRANCE_GMP_ENABLE_LEAK_CHECK()                  \
+  namespace trance { namespace gmp { namespace memory { \
+    leak_checker *leak_checker::_M_checker_chain = 0;   \
+  } } }                                                 \
+  typedef ::trance::gmp::memory::leak_checker           \
+    TRANCE_GMP_LEAK_CHECK_ENABLED                       \
 
 #define TRANCE_GMP_USE_SCOPED_LEAK_CHECK                               \
   ::trance::gmp::memory::leak_checker                                  \
