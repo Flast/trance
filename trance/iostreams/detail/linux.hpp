@@ -23,9 +23,22 @@
 #ifndef IG_TRANCE_IOSTREAMS_DETAIL_LINUX_HPP_ONCE_
 #define IG_TRANCE_IOSTREAMS_DETAIL_LINUX_HPP_ONCE_
 
+#include <trance/config.hpp>
+
+#include <cstddef>
+#include <iosfwd>
+
+#include <boost/cstdint.hpp>
+
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/repeat.hpp>
 #include <boost/preprocessor/tuple/elem.hpp>
+
+namespace trance
+{
+
+namespace iostreams
+{
 
 #define TRANCE_IOSTREAMS_CLEAR_MANIPS_INFO      \
   ( "trance/iostreams/detail/string_manip.hpp", \
@@ -155,7 +168,7 @@ _find_ntz( ::boost::uint8_t _x ) TRANCE_NOEXCEPT
 }
 
 inline ::boost::uint8_t
-_mask( ::trance::iostreams::attribute::value_type _x ) TRANCE_NOEXCEPT
+_mask( _attribute_forwarder::value_type _x ) TRANCE_NOEXCEPT
 { return _x & ( ( 1u << 8 ) - 1 ); }
 
 #define INSERT_SEMICOLON_WHEN( begin, itr ) \
@@ -183,9 +196,9 @@ operator<<( ::std::basic_ostream< _CharT, _Traits > &_ostr,
 {
     _CharT _buf[ 16 ] = { '\x1b', '[' };
     _CharT *itr = _buf + 2;
-    if ( _af._M_value == attribute::reset )
-    { *itr++ = '0'; }
-    else
+    //if ( _af._M_value == attribute::reset )
+    //{ *itr++ = '0'; }
+    //else
     {
         using namespace _detail;
         if ( ::boost::uint8_t _tmp = _mask( _af._M_value ) )
@@ -210,6 +223,10 @@ operator<<( ::std::basic_ostream< _CharT, _Traits > &_ostr,
 #undef INSERT_SEMICOLON_WHEN
 
 } // namespace iostreams_detail
+
+} // namespace iostreams
+
+} // namespace trance
 
 #endif // IG_TRANCE_IOSTREAMS_DETAIL_LINUX_HPP_ONCE_
 

@@ -1,4 +1,4 @@
-// trance iomanip.hpp - Input/Output Manipulator
+// trance screen.hpp - Screen Manipulator
 //
 // Copyright (c) 2011 - 2011 Kohei Takahashi (Flast)
 //
@@ -20,13 +20,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef IG_TRANCE_IOSTREAMS_IOMANI_HPP_ONCE_
-#define IG_TRANCE_IOSTREAMS_IOMANI_HPP_ONCE_
+#ifndef IG_TRANCE_IOSTREAMS_SCREEN_HPP_ONCE_
+#define IG_TRANCE_IOSTREAMS_SCREEN_HPP_ONCE_
 
 #include <trance/config.hpp>
+#include <trance/iostreams/detail/config.hpp>
 
-#include <trance/iostreams/char_attributes.hpp>
-#include <trance/iostreams/screen.hpp>
+namespace trance
+{
 
-#endif // IG_TRANCE_IOSTREAMS_IOMANI_HPP_ONCE_
+namespace iostreams
+{
+
+#define ITERATE_MANIPS_INFO TRANCE_IOSTREAMS_CLEAR_MANIPS_INFO
+#include <trance/iostreams/detail/iterate_manips.hpp>
+
+#define ITERATE_MANIPS_INFO TRANCE_IOSTREAMS_MOVE_1DIM_MANIPS_INFO
+#include <trance/iostreams/detail/iterate_manips.hpp>
+
+} // namespace iostreams
+
+} // namespace trance
+
+#endif // IG_TRANCE_IOSTREAMS_SCREEN_HPP_ONCE_
 

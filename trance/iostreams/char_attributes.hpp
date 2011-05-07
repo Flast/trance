@@ -1,4 +1,4 @@
-// trance escape_sequence.hpp - Generic Escape Sequence Manipulator
+// trance char_attributes.hpp - Character Attributes Manipulator
 //
 // Copyright (c) 2011 - 2011 Kohei Takahashi (Flast)
 //
@@ -20,15 +20,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef IG_TRANCE_IOSTREAMS_ESCAPE_SEQUENCE_HPP_ONCE_
-#define IG_TRANCE_IOSTREAMS_ESCAPE_SEQUENCE_HPP_ONCE_
+#ifndef IG_TRANCE_IOSTREAMS_CHAR_ATTRIBUTES_HPP_ONCE_
+#define IG_TRANCE_IOSTREAMS_CHAR_ATTRIBUTES_HPP_ONCE_
 
 #include <trance/config.hpp>
-
-#include <iosfwd>
-
-#include <boost/cstdint.hpp>
-
 #include <trance/iostreams/detail/config.hpp>
 
 namespace trance
@@ -39,9 +34,9 @@ namespace iostreams
 
 struct attribute
 {
-    typedef ::boost::uint32_t value_type;
+    typedef iostreams_detail::_attribute_forwarder::value_type value_type;
 
-    BOOST_STATIC_CONSTEXPR value_type reset = ~static_cast< ::boost::uint32_t >( 0u ); // [0m
+    BOOST_STATIC_CONSTEXPR value_type reset = ~static_cast< value_type >( 0u ); // [0m
 
     BOOST_STATIC_CONSTEXPR value_type highlight = 1u << 0; // [1m
     //BOOST_STATIC_CONSTEXPR value_type ???       = 1u << 1; // [2m
@@ -72,35 +67,13 @@ struct attribute
     BOOST_STATIC_CONSTEXPR value_type _backcolor_mask = ( ( 1u << 8 ) - 1 ) << 16;
 };
 
-namespace iostreams_detail
-{
-
-struct _attribute_forwarder
-{ attribute::value_type _M_value; };
-
-template < typename _CharT, typename _Traits >
-inline ::std::basic_ostream< _CharT, _Traits > &
-operator<<( ::std::basic_ostream< _CharT, _Traits > &,
-  const _attribute_forwarder & );
-
-} // namespace iostreams_detail
-
 inline iostreams_detail::_attribute_forwarder
 chattr( attribute::value_type attr = attribute::reset ) TRANCE_NOEXCEPT
 { return { attr }; }
-
-#include TRANCE_IOSTREAMS_CONFIG_PLATFORM
-
-#define ITERATE_MANIPS_INFO TRANCE_IOSTREAMS_CLEAR_MANIPS_INFO
-#include <trance/iostreams/detail/iterate_manips.hpp>
-
-#define ITERATE_MANIPS_INFO TRANCE_IOSTREAMS_MOVE_1DIM_MANIPS_INFO
-#include <trance/iostreams/detail/iterate_manips.hpp>
 
 } // namespace iostreams
 
 } // namespace trance
 
-
-#endif // IG_TRANCE_IOSTREAMS_ESCAPE_SEQUENCE_HPP_ONCE_
+#endif // IG_TRANCE_IOSTREAMS_CHAR_ATTRIBUTES_HPP_ONCE_
 

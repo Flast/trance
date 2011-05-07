@@ -25,6 +25,8 @@
 
 #include <trance/config.hpp>
 
+#include <boost/cstdint.hpp>
+
 #include <boost/type_traits/function_traits.hpp>
 
 #if defined( linux )     \
@@ -116,6 +118,13 @@ namespace iostreams
 namespace iostreams_detail
 {
 
+struct _attribute_forwarder
+{
+    typedef ::boost::uint32_t value_type;
+
+    value_type _M_value;
+};
+
 namespace _param_detail
 {
 
@@ -163,6 +172,8 @@ struct _param_manip_impl
 } // namespace iostreams
 
 } // namespace trance
+
+#include TRANCE_IOSTREAMS_CONFIG_PLATFORM
 
 #endif // IG_TRANCE_IOSTREAMS_DETAIL_CONFIG_HPP_ONCE_
 
