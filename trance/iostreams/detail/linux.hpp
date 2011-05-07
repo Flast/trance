@@ -44,7 +44,7 @@
     unsigned int,                               \
     iostreams_detail::_detail::_square_bracket, \
     iostreams_detail::_detail::_suf             \
-   >                                            \
+  >                                             \
 
 #define TRANCE_IOSTREAMS_MOVE_1DIM_MANIPS_INFO                \
   ( "trance/iostreams/detail/param_manip.hpp",                \
@@ -94,7 +94,7 @@ _esc_seq_finalizer( ::std::basic_ostream< _CharT, _CharTraits > &_ostr )
   operator()( ::std::basic_ostream< _type, _CharTraits > &_ostr ) const    \
   { return _ostr << BOOST_PP_CAT( TRANCE_IOSTREAMS_, _forward )( _suf ); } \
 
-#if defined( BOOST_NO_CHAR16_T ) && defined( BOOST_NO_CHAR32_T )
+#if !defined( TRANCE_HAS_CHAR16_T ) && !defined( TRANCE_HAS_CHAR32_T )
 // when C++03 mode
 #define _ENTRY_IMPL( _entry, _char )                              \
   struct _entry                                                   \
@@ -103,7 +103,7 @@ _esc_seq_finalizer( ::std::basic_ostream< _CharT, _CharTraits > &_ostr )
       _ENTRY_OPERATOR_DETAIL( _char, wchar_t , WCHAR_T_FORWARD  ) \
   }                                                               \
 
-#elif !defined( BOOST_NO_CHAR16_T ) && defined( BOOST_NO_CHAR32_T )
+#elif defined( TRANCE_HAS_CHAR16_T ) && !defined( TRANCE_HAS_CHAR32_T )
 // when C++0x with char16_t
 #define _ENTRY_IMPL( _entry, _char )                              \
   struct _entry                                                   \
@@ -113,7 +113,7 @@ _esc_seq_finalizer( ::std::basic_ostream< _CharT, _CharTraits > &_ostr )
       _ENTRY_OPERATOR_DETAIL( _char, char16_t, CHAR16_T_FORWARD ) \
   }                                                               \
 
-#elif defined( BOOST_NO_CHAR16_T ) && !defined( BOOST_NO_CHAR32_T )
+#elif !defined( TRANCE_HAS_CHAR16_T ) && defined( TRANCE_HAS_CHAR32_T )
 // when C++0x with char32_t
 #define _ENTRY_IMPL( _entry, _char )                              \
   struct _entry                                                   \
@@ -134,7 +134,7 @@ _esc_seq_finalizer( ::std::basic_ostream< _CharT, _CharTraits > &_ostr )
       _ENTRY_OPERATOR_DETAIL( _char, char32_t, CHAR32_T_FORWARD ) \
   }                                                               \
 
-#endif // BOOST_NO_CHAR16_T && BOOST_NO_CHAR32_T
+#endif // TRANCE_HAS_CHAR16_T && TRANCE_HAS_CHAR32_T
 
 _ENTRY_IMPL( _square_bracket, '[' );
 
@@ -174,7 +174,7 @@ _insert_when( ::boost::uint8_t pred,
     *itr++ = '0' + _find_ntz( pred );
 }
 
-} // _detail
+} // namespace _detail
 
 template < typename _CharT, typename _Traits >
 inline ::std::basic_ostream< _CharT, _Traits > &

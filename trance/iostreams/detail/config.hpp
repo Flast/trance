@@ -54,47 +54,47 @@
 #define TRANCE_IOSTREAMS_CHAR16_PAIR ( char16_t, TRANCE_IOSTREAMS_CHAR16_T_FORWARD )
 #define TRANCE_IOSTREAMS_CHAR32_PAIR ( char32_t, TRANCE_IOSTREAMS_CHAR32_T_FORWARD )
 
-#if defined( BOOST_NO_CHAR16_T ) && defined( BOOST_NO_CHAR32_T )
+#if !defined( TRANCE_HAS_CHAR16_T ) && !defined( TRANCE_HAS_CHAR32_T )
 // when C++03 mode
 #   define TRANCE_IOSTREAMS_CHAR_TUPLE_SIZE 2
 #   define TRANCE_IOSTREAMS_CHAR_TUPLE \
-  ( \
-    TRANCE_IOSTREAMS_CHAR_PAIR, \
-    TRANCE_IOSTREAMS_WCHAR_PAIR \
-  ) \
+  (                                    \
+    TRANCE_IOSTREAMS_CHAR_PAIR,        \
+    TRANCE_IOSTREAMS_WCHAR_PAIR        \
+  )                                    \
 
-#elif !defined( BOOST_NO_CHAR16_T ) && defined( BOOST_NO_CHAR32_T )
+#elif defined( TRANCE_HAS_CHAR16_T ) && !defined( TRANCE_HAS_CHAR32_T )
 // when C++0x with char16_t
 #   define TRANCE_IOSTREAMS_CHAR_TUPLE_SIZE 3
 #   define TRANCE_IOSTREAMS_CHAR_TUPLE \
-  ( \
-    TRANCE_IOSTREAMS_CHAR_PAIR,  \
-    TRANCE_IOSTREAMS_WCHAR_PAIR, \
-    TRANCE_IOSTREAMS_CHAR16_PAIR \
-  ) \
+  (                                    \
+    TRANCE_IOSTREAMS_CHAR_PAIR,        \
+    TRANCE_IOSTREAMS_WCHAR_PAIR,       \
+    TRANCE_IOSTREAMS_CHAR16_PAIR       \
+  )                                    \
 
-#elif defined( BOOST_NO_CHAR16_T ) && !defined( BOOST_NO_CHAR32_T )
+#elif !defined( TRANCE_HAS_CHAR16_T ) && defined( TRANCE_HAS_CHAR32_T )
 // when C++0x with char32_t
 #   define TRANCE_IOSTREAMS_CHAR_TUPLE_SIZE 3
 #   define TRANCE_IOSTREAMS_CHAR_TUPLE \
-  ( \
-    TRANCE_IOSTREAMS_CHAR_PAIR,  \
-    TRANCE_IOSTREAMS_WCHAR_PAIR, \
-    TRANCE_IOSTREAMS_CHAR32_PAIR \
-  ) \
+  (                                    \
+    TRANCE_IOSTREAMS_CHAR_PAIR,        \
+    TRANCE_IOSTREAMS_WCHAR_PAIR,       \
+    TRANCE_IOSTREAMS_CHAR32_PAIR       \
+  )                                    \
 
 #else
 // when C++0x with both
 #   define TRANCE_IOSTREAMS_CHAR_TUPLE_SIZE 4
 #   define TRANCE_IOSTREAMS_CHAR_TUPLE \
-  ( \
-    TRANCE_IOSTREAMS_CHAR_PAIR,   \
-    TRANCE_IOSTREAMS_WCHAR_PAIR,  \
-    TRANCE_IOSTREAMS_CHAR16_PAIR, \
-    TRANCE_IOSTREAMS_CHAR32_PAIR  \
-  ) \
+  (                                    \
+    TRANCE_IOSTREAMS_CHAR_PAIR,        \
+    TRANCE_IOSTREAMS_WCHAR_PAIR,       \
+    TRANCE_IOSTREAMS_CHAR16_PAIR,      \
+    TRANCE_IOSTREAMS_CHAR32_PAIR       \
+  )                                    \
 
-#endif // BOOST_NO_CHAR16_T && BOOST_NO_CHAR32_T
+#endif // TRANCE_HAS_CHAR16_T && TRANCE_HAS_CHAR32_T
 
 #define TRANCE_IOSTREAMS_GET_CHAR_PAIR( i_ ) \
   BOOST_PP_TUPLE_ELEM(                       \
