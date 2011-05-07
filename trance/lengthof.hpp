@@ -27,16 +27,16 @@
 
 #include <cstddef>
 
-#if !defined( BOOST_NO_0X_HDR_ARRAY )
+#if defined( TRANCE_HAS_0X_HDR_ARRAY )
 #   include <array>
-#endif // BOOST_NO_0X_HDR_ARRAY
+#endif // TRANCE_HAS_0X_HDR_ARRAY
 
-#if !defined( BOOST_NO_0X_HDR_TYPE_TRAITS )
+#if defined( TRANCE_HAS_0X_HDR_TYPE_TRAITS )
 #   include <type_traits>
 #else
 #   include <boost/type_traits/remove_cv.hpp>
 #   include <boost/type_traits/remove_reference.hpp>
-#endif // BOOST_NO_0X_HDR_TYPE_TRAITS
+#endif // TRANCE_HAS_0X_HDR_TYPE_TRAITS
 
 #include <boost/type_traits/integral_constant.hpp>
 
@@ -94,11 +94,11 @@ struct _lengthof_by_type< ::boost::array< T, N >, false >
   : public ::boost::integral_constant< ::std::size_t, N > {};
 
 // for STL Array (C++0x)
-#if !defined( BOOST_NO_0X_HDR_ARRAY )
+#if defined( TRANCE_HAS_0X_HDR_ARRAY )
 template < typename T, ::std::size_t N >
 struct _lengthof_by_type< ::std::array< T, N >, false >
   : public ::boost::integral_constant< ::std::size_t, N > {};
-#endif // !BOOST_NO_0X_HDR_ARRAY
+#endif // TRANCE_HAS_0X_HDR_ARRAY
 
 template < typename T >
 TRANCE_CONSTEXPR ::std::size_t
