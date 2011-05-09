@@ -116,47 +116,16 @@ _esc_seq_finalizer( ::std::basic_ostream< _CharT, _CharTraits > &_ostr )
   operator()( ::std::basic_ostream< _type, _CharTraits > &_ostr ) const    \
   { return _ostr << BOOST_PP_CAT( TRANCE_IOSTREAMS_, _forward )( _suf ); } \
 
-#if !defined( TRANCE_HAS_CHAR16_T ) && !defined( TRANCE_HAS_CHAR32_T )
-// when C++03 mode
-#define _ENTRY_IMPL( _entry, _char )                              \
-  struct _entry                                                   \
-  {                                                               \
-      _ENTRY_OPERATOR_DETAIL( _char, char    , CHAR_FORWARD     ) \
-      _ENTRY_OPERATOR_DETAIL( _char, wchar_t , WCHAR_T_FORWARD  ) \
-  }                                                               \
-
-#elif defined( TRANCE_HAS_CHAR16_T ) && !defined( TRANCE_HAS_CHAR32_T )
-// when C++0x with char16_t
-#define _ENTRY_IMPL( _entry, _char )                              \
-  struct _entry                                                   \
-  {                                                               \
-      _ENTRY_OPERATOR_DETAIL( _char, char    , CHAR_FORWARD     ) \
-      _ENTRY_OPERATOR_DETAIL( _char, wchar_t , WCHAR_T_FORWARD  ) \
-      _ENTRY_OPERATOR_DETAIL( _char, char16_t, CHAR16_T_FORWARD ) \
-  }                                                               \
-
-#elif !defined( TRANCE_HAS_CHAR16_T ) && defined( TRANCE_HAS_CHAR32_T )
-// when C++0x with char32_t
-#define _ENTRY_IMPL( _entry, _char )                              \
-  struct _entry                                                   \
-  {                                                               \
-      _ENTRY_OPERATOR_DETAIL( _char, char    , CHAR_FORWARD     ) \
-      _ENTRY_OPERATOR_DETAIL( _char, wchar_t , WCHAR_T_FORWARD  ) \
-      _ENTRY_OPERATOR_DETAIL( _char, char32_t, CHAR32_T_FORWARD ) \
-  }                                                               \
-
-#else
-// when C++0x with both
-#define _ENTRY_IMPL( _entry, _char )                              \
-  struct _entry                                                   \
-  {                                                               \
-      _ENTRY_OPERATOR_DETAIL( _char, char    , CHAR_FORWARD     ) \
-      _ENTRY_OPERATOR_DETAIL( _char, wchar_t , WCHAR_T_FORWARD  ) \
-      _ENTRY_OPERATOR_DETAIL( _char, char16_t, CHAR16_T_FORWARD ) \
-      _ENTRY_OPERATOR_DETAIL( _char, char32_t, CHAR32_T_FORWARD ) \
-  }                                                               \
-
-#endif // TRANCE_HAS_CHAR16_T && TRANCE_HAS_CHAR32_T
+#define _ENTRY_IMPL( _entry, _char )                                  \
+  struct _entry                                                       \
+  {                                                                   \
+      _ENTRY_OPERATOR_DETAIL( _char, char    , CHAR_FORWARD     )     \
+      _ENTRY_OPERATOR_DETAIL( _char, wchar_t , WCHAR_T_FORWARD  )     \
+      TRANCE_IOSTREAMS_ENABLE_IF_HAS_CHAR16_T(                        \
+        _ENTRY_OPERATOR_DETAIL( _char, char16_t, CHAR16_T_FORWARD ) ) \
+      TRANCE_IOSTREAMS_ENABLE_IF_HAS_CHAR32_T(                        \
+        _ENTRY_OPERATOR_DETAIL( _char, char32_t, CHAR32_T_FORWARD ) ) \
+  }                                                                   \
 
 _ENTRY_IMPL( _square_bracket, '[' );
 
@@ -176,8 +145,9 @@ _find_ntz( ::boost::uint8_t _x ) TRANCE_NOEXCEPT
     return i;
 }
 
+template < typename _Attribute >
 inline ::boost::uint8_t
-_mask( _attribute_forwarder::value_type _x ) TRANCE_NOEXCEPT
+_mask( typename _Attribute::value_type _x ) TRANCE_NOEXCEPT
 { return _x & ( ( 1u << 8 ) - 1 ); }
 
 #define INSERT_SEMICOLON_WHEN( begin, itr ) \
@@ -198,19 +168,22 @@ _insert_when( ::boost::uint8_t pred,
 
 } // namespace _detail
 
-template < typename _CharT, typename _Traits >
+template < typename _CharT, typename _Traits, typename _Attribute >
 inline ::std::basic_ostream< _CharT, _Traits > &
 operator<<( ::std::basic_ostream< _CharT, _Traits > &_ostr,
-  const _attribute_forwarder &_af )
+  const _attribute_forwarder< _Attribute > &_af )
 {
     _CharT _buf[ 16 ] = { '\x1b', '[' };
     _CharT *itr = _buf + 2;
-    //if ( _af._M_value == attribute::reset )
-    //{ *itr++ = '0'; }
-    //else
+    if ( _af._M_value == _Attribute::reset )
+    { *itr++ = '0'; }
+    else
     {
         using namespace _detail;
-        if ( ::boost::uint8_t _tmp = _mask( _af._M_value ) )
+        typedef ::boost::uint8_t mask_t( typename _Attribute::value_type );
+        mask_t &mask = _mask< _Attribute >;
+
+        if ( ::boost::uint8_t _tmp = mask( _af._M_value ) )
         {
             for ( _CharT c = '1'; _tmp; _tmp >>= 1, ++c )
             {
@@ -221,8 +194,8 @@ operator<<( ::std::basic_ostream< _CharT, _Traits > &_ostr,
                 *itr++ = c;
             }
         }
-        _insert_when( _mask( _af._M_value >>  8 ), _buf, itr, '3' );
-        _insert_when( _mask( _af._M_value >> 16 ), _buf, itr, '4' );
+        _insert_when( mask( _af._M_value >>  8 ), _buf, itr, '3' );
+        _insert_when( mask( _af._M_value >> 16 ), _buf, itr, '4' );
     }
 
     *itr = 'm';

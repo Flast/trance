@@ -27,6 +27,8 @@
 
 #include <boost/cstdint.hpp>
 
+#include <boost/preprocessor/inc.hpp>
+
 #include <boost/type_traits/function_traits.hpp>
 
 #if defined( linux )     \
@@ -51,52 +53,46 @@
 #define TRANCE_IOSTREAMS_CHAR16_T_FORWARD( _str ) BOOST_PP_CAT( u, _str )
 #define TRANCE_IOSTREAMS_CHAR32_T_FORWARD( _str ) BOOST_PP_CAT( U, _str )
 
-#define TRANCE_IOSTREAMS_CHAR_PAIR   ( char    , TRANCE_IOSTREAMS_CHAR_FORWARD     )
-#define TRANCE_IOSTREAMS_WCHAR_PAIR  ( wchar_t , TRANCE_IOSTREAMS_WCHAR_T_FORWARD  )
-#define TRANCE_IOSTREAMS_CHAR16_PAIR ( char16_t, TRANCE_IOSTREAMS_CHAR16_T_FORWARD )
-#define TRANCE_IOSTREAMS_CHAR32_PAIR ( char32_t, TRANCE_IOSTREAMS_CHAR32_T_FORWARD )
-
-#if !defined( TRANCE_HAS_CHAR16_T ) && !defined( TRANCE_HAS_CHAR32_T )
-// when C++03 mode
-#   define TRANCE_IOSTREAMS_CHAR_TUPLE_SIZE 2
-#   define TRANCE_IOSTREAMS_CHAR_TUPLE \
-  (                                    \
-    TRANCE_IOSTREAMS_CHAR_PAIR,        \
-    TRANCE_IOSTREAMS_WCHAR_PAIR        \
-  )                                    \
-
-#elif defined( TRANCE_HAS_CHAR16_T ) && !defined( TRANCE_HAS_CHAR32_T )
-// when C++0x with char16_t
-#   define TRANCE_IOSTREAMS_CHAR_TUPLE_SIZE 3
-#   define TRANCE_IOSTREAMS_CHAR_TUPLE \
-  (                                    \
-    TRANCE_IOSTREAMS_CHAR_PAIR,        \
-    TRANCE_IOSTREAMS_WCHAR_PAIR,       \
-    TRANCE_IOSTREAMS_CHAR16_PAIR       \
-  )                                    \
-
-#elif !defined( TRANCE_HAS_CHAR16_T ) && defined( TRANCE_HAS_CHAR32_T )
-// when C++0x with char32_t
-#   define TRANCE_IOSTREAMS_CHAR_TUPLE_SIZE 3
-#   define TRANCE_IOSTREAMS_CHAR_TUPLE \
-  (                                    \
-    TRANCE_IOSTREAMS_CHAR_PAIR,        \
-    TRANCE_IOSTREAMS_WCHAR_PAIR,       \
-    TRANCE_IOSTREAMS_CHAR32_PAIR       \
-  )                                    \
-
+#define TRANCE_IOSTREAMS_CHAR_PAIR \
+  ( char    , TRANCE_IOSTREAMS_CHAR_FORWARD     )
+#define TRANCE_IOSTREAMS_WCHAR_PAIR \
+  ( wchar_t , TRANCE_IOSTREAMS_WCHAR_T_FORWARD  )
+#ifdef TRANCE_HAS_CHAR16_T
+#   define TRANCE_IOSTREAMS_CHAR16_PAIR \
+  ( char16_t, TRANCE_IOSTREAMS_CHAR16_T_FORWARD )
+#   define TRANCE_IOSTREAMS_COMMA_IF_HAS_CHAR16_T ,
+#   define TRANCE_IOSTREAMS_INC_IF_HAS_CHAR16_T( _x ) BOOST_PP_INC( _x )
+#   define TRANCE_IOSTREAMS_ENABLE_IF_HAS_CHAR16_T( _x ) _x
 #else
-// when C++0x with both
-#   define TRANCE_IOSTREAMS_CHAR_TUPLE_SIZE 4
-#   define TRANCE_IOSTREAMS_CHAR_TUPLE \
-  (                                    \
-    TRANCE_IOSTREAMS_CHAR_PAIR,        \
-    TRANCE_IOSTREAMS_WCHAR_PAIR,       \
-    TRANCE_IOSTREAMS_CHAR16_PAIR,      \
-    TRANCE_IOSTREAMS_CHAR32_PAIR       \
-  )                                    \
+#   define TRANCE_IOSTREAMS_CHAR16_PAIR
+#   define TRANCE_IOSTREAMS_COMMA_IF_HAS_CHAR16_T
+#   define TRANCE_IOSTREAMS_INC_IF_HAS_CHAR16_T( _x ) _x
+#   define TRANCE_IOSTREAMS_ENABLE_IF_HAS_CHAR16_T( _x )
+#endif
+#ifdef TRANCE_HAS_CHAR32_T
+#   define TRANCE_IOSTREAMS_CHAR32_PAIR \
+  ( char32_t, TRANCE_IOSTREAMS_CHAR32_T_FORWARD )
+#   define TRANCE_IOSTREAMS_COMMA_IF_HAS_CHAR32_T ,
+#   define TRANCE_IOSTREAMS_INC_IF_HAS_CHAR32_T( _x ) BOOST_PP_INC( _x )
+#   define TRANCE_IOSTREAMS_ENABLE_IF_HAS_CHAR32_T( _x ) _x
+#else
+#   define TRANCE_IOSTREAMS_CHAR32_PAIR
+#   define TRANCE_IOSTREAMS_COMMA_IF_HAS_CHAR32_T
+#   define TRANCE_IOSTREAMS_INC_IF_HAS_CHAR32_T( _x ) _x
+#   define TRANCE_IOSTREAMS_ENABLE_IF_HAS_CHAR32_T( _x )
+#endif
 
-#endif // TRANCE_HAS_CHAR16_T && TRANCE_HAS_CHAR32_T
+#define TRANCE_IOSTREAMS_CHAR_TUPLE_SIZE        \
+  TRANCE_IOSTREAMS_INC_IF_HAS_CHAR16_T(         \
+    TRANCE_IOSTREAMS_INC_IF_HAS_CHAR32_T( 2 ) ) \
+
+#define TRANCE_IOSTREAMS_CHAR_TUPLE                                     \
+  (                                                                     \
+    TRANCE_IOSTREAMS_CHAR_PAIR   ,                                      \
+    TRANCE_IOSTREAMS_WCHAR_PAIR  TRANCE_IOSTREAMS_COMMA_IF_HAS_CHAR16_T \
+    TRANCE_IOSTREAMS_CHAR16_PAIR TRANCE_IOSTREAMS_COMMA_IF_HAS_CHAR32_T \
+    TRANCE_IOSTREAMS_CHAR32_PAIR                                        \
+  )                                                                     \
 
 #define TRANCE_IOSTREAMS_GET_CHAR_PAIR( i_ ) \
   BOOST_PP_TUPLE_ELEM(                       \
@@ -118,9 +114,10 @@ namespace iostreams
 namespace iostreams_detail
 {
 
+template < typename _Attribute >
 struct _attribute_forwarder
 {
-    typedef ::boost::uint32_t value_type;
+    typedef typename _Attribute::value_type value_type;
 
     value_type _M_value;
 };

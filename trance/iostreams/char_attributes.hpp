@@ -34,7 +34,7 @@ namespace iostreams
 
 struct attribute
 {
-    typedef iostreams_detail::_attribute_forwarder::value_type value_type;
+    typedef ::boost::uint32_t value_type;
 
     BOOST_STATIC_CONSTEXPR value_type reset = ~static_cast< value_type >( 0u ); // [0m
 
@@ -67,7 +67,7 @@ struct attribute
     BOOST_STATIC_CONSTEXPR value_type _backcolor_mask = ( ( 1u << 8 ) - 1 ) << 16;
 };
 
-inline iostreams_detail::_attribute_forwarder
+inline iostreams_detail::_attribute_forwarder< attribute >
 chattr( attribute::value_type attr = attribute::reset ) TRANCE_NOEXCEPT
 { return { attr }; }
 
