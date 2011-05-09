@@ -31,20 +31,24 @@ namespace trance
 template < typename T, T _value >
 struct integral_init
 {
-    T _M_value;
+    typedef       T   value_type;
+    typedef       T & reference;
+    typedef const T & const_reference;
+
+    value_type _M_value;
 
     TRANCE_CONSTEXPR
     integral_init( void )
       : _M_value( _value ) {};
 
     TRANCE_CONSTEXPR
-    integral_init( const T &value )
+    integral_init( const_reference value )
       : _M_value( value ) {};
 
-    operator T &( void ) TRANCE_NOEXCEPT
+    operator reference( void ) TRANCE_NOEXCEPT
     { return _M_value; }
 
-    operator const T &( void ) const TRANCE_NOEXCEPT
+    operator const_reference( void ) const TRANCE_NOEXCEPT
     { return _M_value; }
 };
 
