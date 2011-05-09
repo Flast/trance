@@ -20,7 +20,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifdef PARAM_MANIP_RECURSIVE
+#ifndef BOOST_PP_IS_ITERATING
+#   error "detail/param_manip.hpp should not include directly."
+#endif
+
+#if BOOST_PP_ITERATION_DEPTH() == 2
 
 #define j_ BOOST_PP_FRAME_ITERATION( 2 )
 
@@ -30,10 +34,9 @@
     _Traits                               \
   >                                       \
 
-template < typename _CharTraits, TRANCE_IOSTREAMS_PARAM_TEMPLATE_LIST >
+template < typename _CharTraits >
 inline OSTREAM( _CharTraits ) &
-operator<<( OSTREAM( _CharTraits ) &_ostr,
-  const _param_manip_impl< TRANCE_IOSTREAMS_PARAM_TEMPLATE_ARGS > &_param )
+operator<<( OSTREAM( _CharTraits ) &_ostr, const MANIP_NAME &_param )
 {
     namespace iostreams = ::trance::iostreams;
     using namespace iostreams::iostreams_detail::_detail;
@@ -49,14 +52,13 @@ operator<<( OSTREAM( _CharTraits ) &_ostr,
 
 #undef j_
 
-#else // PARAM_MANIP_RECURSIVE
+#elif BOOST_PP_ITERATION_DEPTH() == 1
 
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/dec.hpp>
 #include <boost/preprocessor/tuple/elem.hpp>
 
 #define i_ BOOST_PP_FRAME_ITERATION( 1 )
-#define PARAM_MANIP_RECURSIVE
 
 #define CURRENT_PAIR               \
   BOOST_PP_TUPLE_ELEM(             \
@@ -89,8 +91,7 @@ namespace _param_detail
 #undef MANIP_NAME
 #undef CURRENT_PAIR
 
-#undef PARAM_MANIP_RECURSIVE
 #undef i_
 
-#endif // PARAM_MANIP_RECURSIVE
+#endif // BOOST_PP_ITERATION_DEPTH
 

@@ -20,7 +20,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifdef STRING_MANIP_RECURSIVE
+#ifndef BOOST_PP_IS_ITERATING
+#   error "detail/string_manip.hpp should not include directly."
+#endif
+
+#if BOOST_PP_ITERATION_DEPTH() == 2
 
 #define j_ BOOST_PP_FRAME_ITERATION( 2 )
 
@@ -46,14 +50,13 @@ MANIP_NAME( OSTREAM( _CharTraits ) &_ostr )
 
 #undef j_
 
-#else // STRING_MANIP_RECURSIVE
+#elif BOOST_PP_ITERATION_DEPTH() == 1
 
 #include <boost/preprocessor/dec.hpp>
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/tuple/elem.hpp>
 
 #define i_ BOOST_PP_FRAME_ITERATION( 1 )
-#define STRING_MANIP_RECURSIVE
 
 #define CURRENT_PAIR               \
   BOOST_PP_TUPLE_ELEM(             \
@@ -74,8 +77,7 @@ MANIP_NAME( OSTREAM( _CharTraits ) &_ostr )
 #undef MANIP_NAME
 #undef CURRENT_PAIR
 
-#undef STRING_MANIP_RECURSIVE
 #undef i_
 
-#endif // STRING_MANIP_RECURSIVE
+#endif // BOOST_PP_ITERATION_DEPTH
 

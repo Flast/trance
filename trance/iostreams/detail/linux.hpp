@@ -69,6 +69,15 @@ namespace iostreams
       ( move_left , (TRANCE_IOSTREAMS_MOVE_IMPL( _put_D )) )) \
   )                                                           \
 
+#define TRANCE_IOSTREAMS_MOVE_UPDOWN_MANIPS_INFO \
+  ( "trance/iostreams/detail/string_manip.hpp",  \
+    3,                                           \
+    (                                            \
+      ( move_down1, "D" ),                       \
+      ( new_line  , "E" ),                       \
+      ( move_up1  , "M" ))                       \
+  )                                              \
+
 namespace iostreams_detail
 {
 

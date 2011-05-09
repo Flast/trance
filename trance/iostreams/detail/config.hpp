@@ -131,16 +131,6 @@ namespace _param_detail
 #define TRANCE_IOSTREAMS_MANIP_LAMBDA                \
   iostreams_detail::_param_detail::_param_manip_impl \
 
-#define TRANCE_IOSTREAMS_PARAM_TEMPLATE_LIST \
-  typename _TIOS_PARAM_PARAM,                \
-  typename _TIOS_PARAM_PREFIXER,             \
-  typename _TIOS_PARAM_SUFFIXER              \
-
-#define TRANCE_IOSTREAMS_PARAM_TEMPLATE_ARGS \
-  _TIOS_PARAM_PARAM,                         \
-  _TIOS_PARAM_PREFIXER,                      \
-  _TIOS_PARAM_SUFFIXER                       \
-
 template <
   typename _Param,
   //typename _Delimiter,

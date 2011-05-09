@@ -38,6 +38,9 @@ namespace iostreams
 #define ITERATE_MANIPS_INFO TRANCE_IOSTREAMS_MOVE_1DIM_MANIPS_INFO
 #include <trance/iostreams/detail/iterate_manips.hpp>
 
+#define ITERATE_MANIPS_INFO TRANCE_IOSTREAMS_MOVE_UPDOWN_MANIPS_INFO
+#include <trance/iostreams/detail/iterate_manips.hpp>
+
 } // namespace iostreams
 
 } // namespace trance
