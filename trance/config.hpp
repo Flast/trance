@@ -356,7 +356,7 @@
 // Alternatives
 
 // Boost.Unorderd supported after 1.36.0.
-#ifdef TRANCE_HAS_0X_HDR_UNORDERED_MAP
+#ifdef TRANCE_HAS_0X_HDR_UNORDERED_MAP // require 1.38.0
 #   define TRANCE_UNORDERED_MAP_NAMESPACE ::std
 #   define TRANCE_UNORDERED_MAP_HDR <unordered_map>
 #else
@@ -365,7 +365,7 @@
 #endif // TRANCE_HAS_0X_HDR_UNORDERED_MAP
 
 // Boost.Unorderd supported after 1.36.0.
-#ifdef TRANCE_HAS_0X_HDR_UNORDERED_SET
+#ifdef TRANCE_HAS_0X_HDR_UNORDERED_SET // require 1.38.0
 #   define TRANCE_UNORDERED_SET_NAMESPACE ::std
 #   define TRANCE_UNORDERED_SET_HDR <unordered_set>
 #else
@@ -374,7 +374,7 @@
 #endif // TRANCE_HAS_0X_HDR_UNORDERED_SET
 
 // Boost.Array supported after 1.17.0.
-#ifdef TRANCE_HAS_0X_HDR_ARRAY
+#ifdef TRANCE_HAS_0X_HDR_ARRAY // require 1.40.0
 #   define TRANCE_ARRAY_NAMESPACE ::std
 #   define TRANCE_ARRAY_HDR <array>
 #else
@@ -383,16 +383,19 @@
 #endif // TRANCE_HAS_0X_HDR_ARRAY
 
 // Boost.Chrono not supported in 1.46.1 yet.
-#ifdef TRANCE_HAS_0X_HDR_CHRONO
+#ifdef TRANCE_HAS_0X_HDR_CHRONO // require 1.40.0
 #   define TRANCE_CHRONO_NAMESPACE ::std
 #   define TRANCE_CHRONO_HDR <chrono>
 #elif defined( TRANCE_CONFIG_USE_AS_TRUNK )
 #   define TRANCE_CHRONO_NAMESPACE ::boost
 #   define TRANCE_CHRONO_HDR <boost/chrono.hpp>
+#else
+#   define TRANCE_CHRONO_NAMESPACE
+#   define TRANCE_CHRONO_HDR <trance/config/chrono.hpp>
 #endif // TRANCE_HAS_0X_HDR_CHRONO
 
 // Boost.Thread supported after 1.25.0.
-#ifdef TRANCE_HAS_0X_HDR_CONDITION_VARIABLE
+#ifdef TRANCE_HAS_0X_HDR_CONDITION_VARIABLE // require 1.40.0
 #   define TRANCE_CONDITION_VARIABLE_NAMESPACE ::std
 #   define TRANCE_CONDITION_VARIABLE_HDR <condition_variable>
 #else
@@ -401,7 +404,7 @@
 #endif // TRANCE_HAS_0X_HDR_CONDITION_VARIABLE
 
 // Boost.Thread supported after 1.25.0.
-#ifdef TRANCE_HAS_0X_HDR_FUTURE
+#ifdef TRANCE_HAS_0X_HDR_FUTURE // require 1.40.0
 #   define TRANCE_FUTURE_NAMESPACE ::std
 #   define TRANCE_FUTURE_HDR <future>
 #else
@@ -410,7 +413,7 @@
 #endif // TRANCE_HAS_0X_HDR_FUTURE
 
 // Boost.Thread supported after 1.25.0.
-#ifdef TRANCE_HAS_0X_HDR_MUTEX
+#ifdef TRANCE_HAS_0X_HDR_MUTEX // require 1.40.0
 #   define TRANCE_MUTEX_NAMESPACE ::std
 #   define TRANCE_MUTEX_HDR <mutex>
 #else
@@ -419,7 +422,7 @@
 #endif // TRANCE_HAS_0X_HDR_MUTEX
 
 // Boost.Random supported after 1.15.0.
-#ifdef TRANCE_HAS_0X_HDR_RANDOM
+#ifdef TRANCE_HAS_0X_HDR_RANDOM // require 1.40.0
 #   define TRANCE_RANDOM_NAMESPACE ::std
 #   define TRANCE_RANDOM_HDR <random>
 #else
@@ -428,16 +431,19 @@
 #endif // TRANCE_HAS_0X_HDR_RANDOM
 
 // Boost.Ratio not supported in 1.46.1 yet.
-#ifdef TRANCE_HAS_0X_HDR_RATIO
+#ifdef TRANCE_HAS_0X_HDR_RATIO // require 1.40.0
 #   define TRANCE_RATIO_NAMESPACE ::std
 #   define TRANCE_RATIO_HDR <ratio>
 #elif defined( TRANCE_CONFIG_USE_AS_TRUNK )
 #   define TRANCE_RATIO_NAMESPACE ::boost
 #   define TRANCE_RATIO_HDR <boost/ratio.hpp>
+#else
+#   define TRANCE_RATIO_NAMESPACE
+#   define TRANCE_RATIO_HDR <trance/config/ratio.hpp>
 #endif // TRANCE_HAS_0X_HDR_RATIO
 
 // Boost.Regex supported after 1.18.0.
-#ifdef TRANCE_HAS_0X_HDR_REGEX
+#ifdef TRANCE_HAS_0X_HDR_REGEX // require 1.40.0
 #   define TRANCE_REGEX_NAMESPACE ::std
 #   define TRANCE_REGEX_HDR <regex>
 #else
@@ -446,7 +452,7 @@
 #endif // TRANCE_HAS_0X_HDR_REGEX
 
 // Boost.System supported after 1.35.0.
-#ifdef TRANCE_HAS_0X_HDR_SYSTEM_ERROR
+#ifdef TRANCE_HAS_0X_HDR_SYSTEM_ERROR // require 1.40.0
 #   define TRANCE_SYSTEM_ERROR_NAMESPACE ::std
 #   define TRANCE_SYSTEM_ERROR_HDR <system_error>
 #else
@@ -455,7 +461,7 @@
 #endif // TRANCE_HAS_0X_HDR_SYSTEM_ERROR
 
 // Boost.Thread supported after 1.25.0.
-#ifdef TRANCE_HAS_0X_HDR_THREAD
+#ifdef TRANCE_HAS_0X_HDR_THREAD // require 1.40.0
 #   define TRANCE_THREAD_NAMESPACE ::std
 #   define TRANCE_THREAD_HDR <thread>
 #else
@@ -464,7 +470,7 @@
 #endif // TRANCE_HAS_0X_HDR_THREAD
 
 // Boost.Tuple supported after 1.24.0.
-#ifdef TRANCE_HAS_0X_HDR_TUPLE
+#ifdef TRANCE_HAS_0X_HDR_TUPLE // require 1.40.0
 #   define TRANCE_TUPLE_NAMESPACE ::std
 #   define TRANCE_TUPLE_HDR <tuple>
 #else
@@ -473,7 +479,7 @@
 #endif // TRANCE_HAS_0X_HDR_TUPLE
 
 // Boost.Type Traits supported after 1.13.0.
-#ifdef TRANCE_HAS_0X_HDR_TYPE_TRAITS
+#ifdef TRANCE_HAS_0X_HDR_TYPE_TRAITS // require 1.40.0
 #   define TRANCE_TYPE_TRAITS_NAMESPACE ::std
 #   define TRANCE_TYPE_TRAITS_HDR <type_traits>
 #else
