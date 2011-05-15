@@ -1,4 +1,9 @@
 import os ;
+import package ;
+import path ;
+import sequence ;
+
+path-constant project-root : [ path.make ./ ] ;
 
 if [ os.environ BOOST_ROOT ]
 {
@@ -10,11 +15,37 @@ if [ os.environ BOOST_ROOT ]
           /boost
       : requirements
           <define>BOOST_ALL_NO_LIB=1
-          <include>$(BOOST_ROOT) ;
+          <include>$(BOOST_ROOT)
+      ;
 }
 else
 {
     project /trance
       : requirements
-          <define>BOOST_ALL_NO_LIB=1 ;
+          <define>BOOST_ALL_NO_LIB=1
+      ;
 }
+
+local rule explicit-alias ( id : targets + )
+{
+    alias $(id) : $(targets) ;
+    explicit $(id) ;
+}
+
+local all-libraries = [ sequence.unique
+  [ MATCH libs/(.*)/build/.* : [ glob libs/*/build/Jamfile ] ] ] ;
+
+for local library in $(all-libraries)
+{
+    use-project /trance/$(library) : libs/$(library)/build ;
+    explicit-alias $(library) : /trance/$(library)//trance_$(library) ;
+}
+
+explicit install ;
+package.install install trance
+  : <install-header-subdir>trance
+    <install-source-root>$(project-root)/trance
+  : # binaries
+  : $(all-libraries)
+  : [ path.glob-tree $(project-root)/trance : *.hpp ]
+  ;
