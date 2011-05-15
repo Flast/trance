@@ -2,50 +2,105 @@ import os ;
 import package ;
 import path ;
 import sequence ;
+import testing ;
 
 path-constant project-root : [ path.make ./ ] ;
 
+# Check Boost installation.
 if [ os.environ BOOST_ROOT ]
 {
     path-constant BOOST_ROOT : [ os.environ BOOST_ROOT ] ;
     use-project /boost : $(BOOST_ROOT) ;
-
-    project /trance
-      : parent
-          /boost
-      : requirements
-          <define>BOOST_ALL_NO_LIB=1
-          <include>$(BOOST_ROOT)
-      ;
-}
-else
-{
-    project /trance
-      : requirements
-          <define>BOOST_ALL_NO_LIB=1
-      ;
+    local boost-projects = /boost ;
+    local boost-requirements = <include>$(BOOST_ROOT) ;
 }
 
-local rule explicit-alias ( id : targets + )
+# Root project requirements.
+project-requirements =
+  <define>BOOST_ALL_NO_LIB=1
+  <include>$(project-root)
+  ;
+
+project /trance
+  : parent $(boost-projects)
+  : requirements
+      $(boost-requirements)
+      $(project-requirements)
+  ;
+
+# Utility rules.
+rule explicit-alias ( id : targets + )
 {
     alias $(id) : $(targets) ;
     explicit $(id) ;
 }
 
-local all-libraries = [ sequence.unique
-  [ MATCH libs/(.*)/build/.* : [ glob libs/*/build/Jamfile ] ] ] ;
+rule named-compile ( name : sources + : requirements * )
+{
+    compile $(sources) : $(requirements) : $(name) ;
+    explicit $(name) ;
+}
+rule named-compile-fail ( name : sources + : requirements * )
+{
+    compile-fail $(sources) : $(requirements) : $(name) ;
+    explicit $(name) ;
+}
 
-for local library in $(all-libraries)
+rule named-link ( name : sources + : requirements * )
+{
+    link $(sources) : $(requirements) : $(name) ;
+    explicit $(name) ;
+}
+rule named-link-fail ( name : sources + : requirements * )
+{
+    link-fail $(sources) : $(requirements) : $(name) ;
+    explicit $(name) ;
+}
+
+rule named-run ( name : sources + : requirements * )
+{
+    run $(sources) : : : $(requirements) : $(name) ;
+    explicit $(name) ;
+}
+rule named-run-fail ( name : sources + : requirements * )
+{
+    run-fail $(sources) : : : $(requirements) : $(name) ;
+    explicit $(name) ;
+}
+
+# Including Trance all headers.
+explicit headers ;
+alias headers : : : : <include>$(project-root) ;
+headers = [ path.glob-tree $(project-root)/trance : *.hpp ] ;
+
+# Non-header only libraries.
+local libraries = [ sequence.unique
+  [ MATCH libs/(.*)/build/.* : [ glob libs/*/build/Jamfile.jam ] ] ] ;
+
+# Aliasing for commandline option.
+for local library in $(libraries)
 {
     use-project /trance/$(library) : libs/$(library)/build ;
     explicit-alias $(library) : /trance/$(library)//trance_$(library) ;
 }
 
+# Install Trance.
 explicit install ;
 package.install install trance
-  : <install-header-subdir>trance
-    <install-source-root>$(project-root)/trance
-  : # binaries
-  : $(all-libraries)
+  : <install-source-root>$(project-root)
+  : # no binaries
+  : $(libraries)
   : [ path.glob-tree $(project-root)/trance : *.hpp ]
   ;
+
+# Test Trance.
+local tests = [ sequence.unique
+  [ MATCH libs/(.*)/test/.* : [ glob libs/*/test/Jamfile.jam ] ] ] ;
+
+for local test in $(tests)
+{
+    use-project /trance/$(test)/test : libs/$(test)/test ;
+}
+
+explicit check ;
+alias check : /trance/$(tests)/test//trance_test_exec ;
