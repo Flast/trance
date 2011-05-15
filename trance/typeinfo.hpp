@@ -50,7 +50,7 @@ namespace typeinfo_detail
 
 class _type_info_base
 {
-    type_info_base( const _type_info_base & ) TRANCE_DELETED_FUNCTION;
+    _type_info_base( const _type_info_base & ) TRANCE_DELETED_FUNCTION;
 
     _type_info_base &
     operator=( const _type_info_base & ) TRANCE_DELETED_FUNCTION;

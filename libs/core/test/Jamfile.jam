@@ -1,0 +1,12 @@
+project /trance/core/test
+  : parent /trance
+  : requirements
+      $(boost-requirements)
+      $(project-requirements)
+  ;
+
+explicit-alias trance_test_exec
+  : /trance/core/test//typeinfo/run1
+  ;
+
+named-run typeinfo/run1 : typeinfo/run1.cpp ;
