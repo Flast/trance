@@ -7,8 +7,11 @@
 int
 test_main( int, char *[] )
 {
-    BOOST_REQUIRE( std::string( "int" ) == TRANCE_TYPEID( 0 ).demangled_name() );
-    BOOST_REQUIRE( std::string( "int" ) == TRANCE_TYPEID( int ).demangled_name() );
+    const std::string expected( "int" );
+    BOOST_REQUIRE( expected == TRANCE_TYPEID( 0 ).demangled_name() );
+    BOOST_REQUIRE( expected == TRANCE_TYPEID( int ).demangled_name() );
+    BOOST_REQUIRE( expected == TRANCE_TYPEID_BY_EXPR( 0 ).demangled_name() );
+    BOOST_REQUIRE( expected == TRANCE_TYPEID_BY_TYPE( int ).demangled_name() );
     return 0;
 }
 

@@ -1,3 +1,5 @@
+import sequence ;
+
 project /trance/core/test
   : parent /trance
   : requirements
@@ -5,8 +7,14 @@ project /trance/core/test
       $(project-requirements)
   ;
 
+local tests-run = [ sequence.unique
+  [ MATCH (.*/run[0-9]*).cpp : [ glob */*.cpp ] ] ] ;
+
 explicit-alias trance_test_exec
-  : /trance/core/test//typeinfo/run1
+  : /trance/core/test//$(tests-run)
   ;
 
-named-run typeinfo/run1 : typeinfo/run1.cpp ;
+for local test-run in $(tests-run)
+{
+    named-run $(test-run) : $(test-run).cpp ;
+}
