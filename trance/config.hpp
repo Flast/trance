@@ -487,5 +487,7 @@
 #   define TRANCE_TYPE_TRAITS_HDR <boost/type_traits.hpp>
 #endif // TRANCE_HAS_0X_HDR_TYPE_TRAITS
 
+#include <trance/config/attribute.hpp>
+
 #endif // IG_TRANCE_CONFIG_HPP_ONCE_
 

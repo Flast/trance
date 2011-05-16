@@ -177,6 +177,7 @@ public:
     what( void ) const TRANCE_NOEXCEPT
     { return _M_what_message; }
 
+    TRANCE_ATTRIBUTE_NORETURN
     /*[[noreturn]]*/ virtual void
     rethrow_composite_error( void ) const = 0;
 };
@@ -186,6 +187,7 @@ namespace typeinfo_detail
 
 #if defined( BOOST_GNU_STDLIB ) && BOOST_GNU_STDLIB
 template < typename _Exception >
+TRANCE_ATTRIBUTE_NORETURN
 /*[[noreturn]]*/ inline void
 _throw_bad_typeid_with( const char *_mes )
 {
@@ -201,6 +203,7 @@ _throw_bad_typeid_with( const char *_mes )
               "catch trance::bad_typeid."
             ) {}
 
+        TRANCE_ATTRIBUTE_NORETURN
         /*[[noreturn]]*/ void
         rethrow_composite_error( void ) const
         { throw _Exception( bad_typeid::what() ); }
