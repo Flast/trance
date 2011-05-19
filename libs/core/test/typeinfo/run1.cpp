@@ -12,6 +12,7 @@ test_main( int, char *[] )
     BOOST_REQUIRE( expected == TRANCE_TYPEID( int ).demangled_name() );
     BOOST_REQUIRE( expected == TRANCE_TYPEID_BY_EXPR( 0 ).demangled_name() );
     BOOST_REQUIRE( expected == TRANCE_TYPEID_BY_TYPE( int ).demangled_name() );
+
     return 0;
 }
 
