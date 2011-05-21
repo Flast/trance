@@ -42,6 +42,17 @@
 //  void ( *pf1 )( const char * ) = function; // implicitly convertion
 //  void ( *pf2 )( const char * ) = &function; // also explicitly can
 
+// NOTICE:
+//  The TRANCE_LOCAL_FUNCTION is for trivial functions.
+//  So TRANCE_LOCAL_FUNCTION does not support comma operator in top level and default arguments.
+//  For example, following function using comma operator will be error in C++03. (But C++0x is not.)
+//  TRANCE_LOCAL_FUNCTION( bool, function, (),
+//  {
+//      return true, true;
+//  } );
+//  And following function using default arguments will be error both of C++03 and C++0x.
+//  TRANCE_LOCAL_FUNCTION( void, function, ( int = 0 ), {} );
+
 #if defined( TRANCE_HAS_LAMBDAS )
 
 // Use reference because to be able to get pointer to function.

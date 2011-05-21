@@ -212,6 +212,8 @@ _throw_bad_typeid_with( const char *_mes )
     throw _internal_composite_error( _mes );
 }
 
+// C++03 not allow using local structure to template parameter.
+// And, Boost.Interprocess's scoped_ptr does not accept function pointer to deleter.
 struct _deleter_with_free
 {
     inline void
@@ -320,6 +322,8 @@ public:
     { return *this; }
 };
 
+// TRANCE_TYPEID has some performance regression.
+// TRANCE_TYPEID_BY_TYPE or TRANCE_TYPEID_BY_EXPR are recommended.
 #define TRANCE_TYPEID( _typeid_or_expr )                                   \
   static_cast< const ::trance::typeinfo_detail::_type_info_impl & >(       \
     ::trance::typeinfo_detail::_type_info_impl(                            \
