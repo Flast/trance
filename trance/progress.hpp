@@ -220,6 +220,11 @@ class decrementable_progress_display
 
             do
             {
+                if ( _M_tic == 51 )
+                {
+                    _ostr() << iostreams::move_up1
+                            << iostreams::move_right( 51 );
+                }
                 _ostr() << iostreams::move_left( 1 )
                         << ' '
                         << iostreams::move_left( 1 )
