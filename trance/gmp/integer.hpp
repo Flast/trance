@@ -25,17 +25,20 @@
 
 #include <trance/config.hpp>
 
-#include <cstring>
-#include <cmath>
-#include <iosfwd>
+#include <algorithm> // for iter_swap
 
-#include <boost/operators.hpp>
+#include <boost/utility/enable_if.hpp>
 
-#include <trance/as_const.hpp>
-#include <trance/safe_bool.hpp>
-#include <trance/integral_init.hpp>
+#include <boost/type_traits/is_same.hpp>
+
+#include <boost/mpl/bool.hpp>
+#include <boost/mpl/and.hpp>
+
+#include <boost/proto/proto.hpp>
 
 #include <trance/gmp/config.hpp>
+
+#include <trance/proto/result_of.hpp>
 
 namespace trance
 {
@@ -43,399 +46,216 @@ namespace trance
 namespace gmp
 {
 
-//template < typename Alloc >
-class integer_type
-  : // <, <=, >, >=, ==, !=, +=, -=, *=, /=, %=, +, -, *, /, %
-    private ::boost::ordered_euclidean_ring_operators< integer_type >,
-    private ::boost::ordered_euclidean_ring_operators< integer_type, double >,
-    // ++, --
-    private ::boost::unit_steppable< integer_type >,
-    // <<, <<=, >>, >>=
-    private ::boost::shiftable< integer_type >,
-    private ::boost::shiftable< integer_type, signed long >,
-    // &=, |=, ^=, &, |, ^
-    private ::boost::bitwise< integer_type >,
-    private ::boost::bitwise< integer_type, unsigned long >
+class integer;
+
+namespace integer_detail
 {
+
+namespace bproto = ::boost::proto;
+
+struct grammar
+  : public bproto::or_<
+      bproto::terminal< bproto::_ >
+    , bproto::plus< grammar, grammar >
+    //, bproto::minus< grammar, grammar >
+    //, bproto::multiplies< grammar, grammar >
+    //, bproto::divides< grammar, grammar >
+    > {};
+
+template < typename >
+struct expression;
+
+struct domain
+  : public bproto::domain< bproto::generator< expression >, grammar > {};
+
+template < typename _Expr >
+struct expression
+  : public bproto::extends< _Expr, expression< _Expr >, domain >
+{
+    typedef bproto::extends< _Expr, expression< _Expr >, domain > _base_t;
+
+    expression( void )
+      : _base_t( _Expr() ) {}
+
+    expression( const _Expr &expr )
+      : _base_t( expr ) {}
+};
+
+template < typename _ValueType >
+class context
+{
+    typedef _ValueType _target_type;
+    _target_type *_M_target;
+
+public:
+    explicit
+    context( _target_type &_target )
+      : _M_target( &_target ) {}
+
+    template < typename, typename = void >
+    struct eval;
+};
+
+} // namespace integer_detail
+
+class integer
+{
+    template < typename >
+    friend class integer_detail::context;
+
     typedef mpz_t _internal_type;
 
     _internal_type _M_internal;
-    integral_init< bool, false > _M_is_initialized;
 
-private:
-    void
-    _init( void ) TRANCE_NOEXCEPT
-    {
-        if ( !_M_is_initialized )
-        {
-            mpz_init( _M_internal );
-            _M_is_initialized = true;
-        }
-    }
-
-    void
-    _clear( void ) TRANCE_NOEXCEPT
-    {
-        if ( _M_is_initialized )
-        {
-            mpz_clear( _M_internal );
-            _M_is_initialized = false;
-        }
-    }
+    typedef integer_detail::context< integer > _integer_context;
 
 public:
-    typedef _internal_type value_type;
+    integer( void ) TRANCE_NOEXCEPT
+    { mpz_init( _M_internal ); }
 
-    // default ctor
-    integer_type( void ) TRANCE_NOEXCEPT
-    { reset(); }
-
-    integer_type( const integer_type &op ) TRANCE_NOEXCEPT
-    { reset( op ); }
-
-    template < typename T >
-    integer_type( const T &op ) TRANCE_NOEXCEPT
-    { reset( op ); }
-
-    ~integer_type( void ) TRANCE_NOEXCEPT
-    { _clear(); }
-
-    integer_type &
-    operator=( const integer_type &op ) TRANCE_NOEXCEPT
+    integer( const integer &_other ) TRANCE_NOEXCEPT
     {
-        reset( op );
+        mpz_init( _M_internal );
+        mpz_set( _M_internal, _other._M_internal );
+    }
+
+#ifdef TRANCE_HAS_RVALUE_REFERENCES
+    integer( integer &&_other ) TRANCE_NOEXCEPT
+    { this->swap( _other ); }
+#endif // TRANCE_HAS_RVALUE_REFERENCES
+
+    template < typename _Expr >
+    integer( const integer_detail::expression< _Expr > &expr )
+    {
+        mpz_init( _M_internal );
+
+        // evalute and copy
+        ::boost::proto::eval( expr, _integer_context( *this ) );
+    }
+
+    ~integer( void )
+    { mpz_clear( _M_internal ); } TRANCE_NOEXCEPT
+
+    integer &
+    operator=( const integer &_other ) TRANCE_NOEXCEPT
+    {
+        mpz_set( _M_internal, _other._M_internal );
         return *this;
     }
 
-    template < typename T >
-    integer_type &
-    operator=( const T &op ) TRANCE_NOEXCEPT
+#ifdef TRANCE_HAS_RVALUE_REFERENCES
+    integer &
+    operator=( integer &&_other ) TRANCE_NOEXCEPT
     {
-        reset( op );
+        this->swap( _other );
         return *this;
     }
+#endif // TRANCE_HAS_RVALUE_REFERENCES
 
     void
-    reset( void ) TRANCE_NOEXCEPT
-    {
-        _clear();
-        _init();
-    }
-
-    void
-    reset( const integer_type &op ) TRANCE_NOEXCEPT
-    {
-        _init();
-        mpz_set( _M_internal, op._M_internal );
-    }
-
-    //void
-    //reset( unsigned long op ) TRANCE_NOEXCEPT
-    //{
-    //    _init();
-    //    mpz_set_ui( _M_internal, op );
-    //}
-
-    //void
-    //reset( signed long op ) TRANCE_NOEXCEPT
-    //{
-    //    _init();
-    //    mpz_set_si( _M_internal, op );
-    //}
-
-    void
-    reset( double op ) TRANCE_NOEXCEPT
-    {
-        _init();
-        mpz_set_d( _M_internal, op );
-    }
-
-    void
-    reset( const char *str, int base = 10 )
-    {
-        _init();
-        mpz_set_str( _M_internal, const_cast< char * >( str ), base );
-        // TODO: check error
-    }
-
-    void
-    swap( integer_type &rop ) TRANCE_NOEXCEPT
-    { mpz_swap( _M_internal, rop._M_internal ); }
-
-    integer_type
-    operator+( void ) const TRANCE_NOEXCEPT
-    { return *this; }
-
-    integer_type
-    operator-( void ) const TRANCE_NOEXCEPT
-    {
-        integer_type _tmp;
-        mpz_neg( _tmp._M_internal, _M_internal );
-        return _tmp;
-    }
-
-    // Boost.Operators, incrementable requires
-    integer_type &
-    operator++( void ) TRANCE_NOEXCEPT
-    {
-        *this += 1;
-        return *this;
-    }
-
-    // Boost.Operators, decrementable requires
-    integer_type &
-    operator--( void ) TRANCE_NOEXCEPT
-    {
-        *this -= 1;
-        return *this;
-    }
-
-    operator safe_bool_t( void ) const TRANCE_NOEXCEPT
-    { return safe_bool( !!*this ); }
-
-    bool
-    operator!( void ) const TRANCE_NOEXCEPT
-    { return *this == 0; }
-
-    // Boost.Operators, less_than_comparable requires
-    friend bool
-    operator<( const integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
-    friend bool
-    operator<( const integer_type &, double ) TRANCE_NOEXCEPT;
-    friend bool
-    operator>( const integer_type &, double ) TRANCE_NOEXCEPT;
-
-    // Boost.Operators, equality_comparable requires
-    friend bool
-    operator==( const integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
-    friend bool
-    operator==( const integer_type &, double ) TRANCE_NOEXCEPT;
-
-    // Boost.Operators, addable requires
-    friend integer_type &
-    operator+=( integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
-    friend integer_type &
-    operator+=( integer_type &, double ) TRANCE_NOEXCEPT;
-
-    // Boost.Operators, subtractable requires
-    friend integer_type &
-    operator-=( integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
-    friend integer_type &
-    operator-=( integer_type &, double ) TRANCE_NOEXCEPT;
-
-    // Boost.Operators, multipliable requires
-    friend integer_type &
-    operator*=( integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
-    friend integer_type &
-    operator*=( integer_type &, double ) TRANCE_NOEXCEPT;
-    //friend integer_type &
-    //operator*=( integer_type &rop, unsigned long op ) TRANCE_NOEXCEPT;
-
-    // Boost.Operators, dividable requires
-    friend integer_type &
-    operator/=( integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
-    friend integer_type &
-    operator/=( integer_type &, double ) TRANCE_NOEXCEPT;
-
-    // Boost.Operators, modable requires
-    friend integer_type &
-    operator%=( integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
-    friend integer_type &
-    operator%=( integer_type &, double ) TRANCE_NOEXCEPT;
-
-    // Boost.Operators, shiftable requires
-    friend integer_type &
-    operator<<=( integer_type &, signed int ) TRANCE_NOEXCEPT;
-    friend integer_type &
-    operator>>=( integer_type &, signed int ) TRANCE_NOEXCEPT;
-
-    // Boost.Operators, bitwise requires
-    friend integer_type &
-    operator&=( integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
-    friend integer_type &
-    operator|=( integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
-    friend integer_type &
-    operator^=( integer_type &, const integer_type & ) TRANCE_NOEXCEPT;
-
-    template < typename _CharT, typename _Traits >
-    friend ::std::basic_ostream< _CharT, _Traits > &
-    operator<<( ::std::basic_ostream< _CharT, _Traits > &,
-      const integer_type & );
-
-    //template < typename _CharT, typename _Traits >
-    //friend ::std::basic_istream< _CharT, _Traits > &
-    //operator>>( ::std::basic_istream< _CharT, _Traits > &, integer_type & );
+    swap( integer &_other ) TRANCE_NOEXCEPT
+    { ::std::iter_swap( &_M_internal, &_other._M_internal ); }
 };
 
-inline bool
-operator<( const integer_type &_x, const integer_type &_y ) TRANCE_NOEXCEPT
-{ return mpz_cmp( _x._M_internal, _y._M_internal ) < 0; }
+template < typename >
+struct is_integer
+  : public ::boost::mpl::false_ {};
 
-inline bool
-operator<( const integer_type &_x, double _y ) TRANCE_NOEXCEPT
-{ return mpz_cmp_d( _x._M_internal, _y ) < 0; }
+template <>
+struct is_integer< integer >
+  : public ::boost::mpl::true_ {};
 
-inline bool
-operator>( const integer_type &_x, double _y ) TRANCE_NOEXCEPT
-{ return mpz_cmp_d( _x._M_internal, _y ) > 0; }
+BOOST_PROTO_DEFINE_OPERATORS( is_integer, integer_detail::domain )
 
-inline bool
-operator==( const integer_type &_x, const integer_type &_y ) TRANCE_NOEXCEPT
-{ return !mpz_cmp( _x._M_internal, _y._M_internal ); }
-
-inline bool
-operator==( const integer_type &_x, double _y ) TRANCE_NOEXCEPT
-{ return !mpz_cmp_d( _x._M_internal, _y ); }
-
-inline integer_type &
-operator+=( integer_type &rop, const integer_type &op ) TRANCE_NOEXCEPT
+namespace integer_detail
 {
-    mpz_add( rop._M_internal, rop._M_internal, op._M_internal );
-    return rop;
-}
 
-inline integer_type &
-operator+=( integer_type &rop, double op ) TRANCE_NOEXCEPT
+template < typename _target_type >
+template < typename _Expr >
+struct context< _target_type >::eval<
+  _Expr
+, typename ::boost::enable_if<
+    bproto::matches< _Expr, bproto::terminal< bproto::_ > >
+  >::type
+>
 {
-    typedef void _add_func( mpz_ptr, mpz_srcptr, unsigned long );
-    _add_func &_add = op >= 0.0 ? mpz_add_ui : mpz_sub_ui;
-    _add( rop._M_internal, rop._M_internal, abs( op ) );
-    return rop;
-}
+    typedef context< _target_type > _this_context;
+    typedef _target_type & result_type;
 
-inline integer_type &
-operator-=( integer_type &rop, const integer_type &op ) TRANCE_NOEXCEPT
-{
-    mpz_sub( rop._M_internal, rop._M_internal, op._M_internal );
-    return rop;
-}
+    result_type
+    operator()( _Expr &expr, const _this_context &ctx ) const
+    { return _eval_impl( expr, ctx ); }
 
-inline integer_type &
-operator-=( integer_type &rop, double op ) TRANCE_NOEXCEPT
-{
-    typedef void _sub_func( mpz_ptr, mpz_srcptr, unsigned long );
-    _sub_func &_sub = op >= 0.0 ? mpz_sub_ui : mpz_add_ui;
-    _sub( rop._M_internal, rop._M_internal, abs( op ) );
-    return rop;
-}
-
-inline integer_type &
-operator*=( integer_type &rop, const integer_type &op ) TRANCE_NOEXCEPT
-{
-    mpz_mul( rop._M_internal, rop._M_internal, op._M_internal );
-    return rop;
-}
-
-inline integer_type &
-operator*=( integer_type &rop, double op ) TRANCE_NOEXCEPT
-{
-    mpz_mul_si( rop._M_internal, rop._M_internal, op );
-    return rop;
-}
-
-//inline integer_type &
-//operator*=( integer_type &rop, unsigned long op ) TRANCE_NOEXCEPT
-//{
-//    mpz_mul_ui( rop._M_internal, rop._M_internal, op );
-//    return rop;
-//}
-
-inline integer_type &
-operator/=( integer_type &_n, const integer_type &_d ) TRANCE_NOEXCEPT
-{
-    mpz_divexact( _n._M_internal, _n._M_internal, _d._M_internal );
-    return _n;
-}
-
-inline integer_type &
-operator/=( integer_type &_n, double _d ) TRANCE_NOEXCEPT
-{
-    const integer_type &_tmp = _d >= 0.0 ? _n : -_n;
-    mpz_divexact_ui( _n._M_internal, _tmp._M_internal, abs( _d ) );
-    return _n;
-}
-
-inline integer_type &
-operator%=( integer_type &_n, const integer_type &_d ) TRANCE_NOEXCEPT
-{
-    mpz_mod( _n._M_internal, _n._M_internal, _d._M_internal );
-    return _n;
-}
-
-inline integer_type &
-operator%=( integer_type &_n, double _d ) TRANCE_NOEXCEPT
-{
-    const integer_type &_tmp = _d >= 0.0 ? _n : -_n;
-    mpz_mod_ui( _n._M_internal, _tmp._M_internal, abs( _d ) );
-    return _n;
-}
-
-inline integer_type &
-operator<<=( integer_type &op, signed int _n ) TRANCE_NOEXCEPT
-{
-    if ( _n < 0 )
-    { return op >>= -_n; }
-    else if ( _n > 0 )
-    { mpz_mul_2exp( op._M_internal, op._M_internal, _n ); }
-    return op;
-}
-
-inline integer_type &
-operator>>=( integer_type &op, signed int _n ) TRANCE_NOEXCEPT
-{
-    if ( _n < 0 )
-    { return op <<= -_n; }
-    else if ( _n > 0 )
-    { mpz_tdiv_q_2exp( op._M_internal, op._M_internal, _n ); }
-    return op;
-}
-
-inline integer_type &
-operator&=( integer_type &rop, const integer_type &op ) TRANCE_NOEXCEPT
-{
-    mpz_and( rop._M_internal, rop._M_internal, op._M_internal );
-    return rop;
-}
-
-inline integer_type &
-operator|=( integer_type &rop, const integer_type &op ) TRANCE_NOEXCEPT
-{
-    mpz_ior( rop._M_internal, rop._M_internal, op._M_internal );
-    return rop;
-}
-
-inline integer_type &
-operator^=( integer_type &rop, const integer_type &op ) TRANCE_NOEXCEPT
-{
-    mpz_xor( rop._M_internal, rop._M_internal, op._M_internal );
-    return rop;
-}
-
-template < typename _CharT, typename _Traits >
-inline ::std::basic_ostream< _CharT, _Traits > &
-operator<<( ::std::basic_ostream< _CharT, _Traits > &ostr,
-  const integer_type &op )
-{
-    void ( *_free )( void *, size_t );
-    mp_get_memory_functions( 0, 0, &_free );
-    if ( !_free )
+    template < typename Expr >
+    typename ::boost::enable_if<
+      ::boost::is_same<
+        typename bproto::result_of::value< Expr >::type
+      , integer
+      >
+    , result_type
+    >::type
+    _eval_impl( Expr &expr, const _this_context &ctx ) const
     {
-        // TODO
-        throw;
+        mpz_set(
+          ctx._M_target->_M_internal
+        , bproto::value( expr )._M_internal
+        );
+        return *ctx._M_target;
     }
+};
 
-    char *str = mpz_get_str( 0, 10, op._M_internal );
-    ostr << as_const( str );
+template < typename _target_type >
+template < typename _Expr >
+struct context< _target_type >::eval<
+  _Expr
+, typename ::boost::enable_if<
+    bproto::matches<
+      _Expr
+    , bproto::plus< bproto::_, bproto::_ >
+    >
+  >::type
+>
+{
+    typedef context< _target_type > _this_context;
+    typedef _target_type & result_type;
 
-    _free( str, ::std::strlen( str ) + 1 );
-    return ostr;
-}
+    result_type
+    operator()( _Expr &expr, const _this_context &ctx ) const
+    { return _eval_impl( expr, ctx ); }
 
-//template < typename _CharT, typename _Traits >
-//inline ::std::basic_istream< _CharT, _Traits > &
-//operator>>( ::std::basic_istream< _CharT, _Traits > &ostr, integer_type &op )
-//{
-//}
+    template < typename Expr >
+    typename ::boost::enable_if<
+      ::boost::mpl::and_<
+        ::boost::is_same<
+          typename proto::left_result_of< Expr, _this_context >::type
+        , integer
+        >
+      , ::boost::is_same<
+          typename proto::right_result_of< Expr, _this_context >::type
+        , integer
+        >
+      >
+    , result_type
+    >::type
+    _eval_impl( Expr &expr, const _this_context &ctx ) const
+    {
+        typedef context< integer > icontext;
+        using namespace bproto;
+
+        integer tmp;
+        integer &ltarget = bproto::eval( left( expr ), ctx );
+        integer &rtarget = bproto::eval( right( expr ), icontext( tmp ) );
+
+        mpz_add(
+          ctx._M_target->_M_internal
+        , ltarget._M_internal
+        , rtarget._M_internal
+        );
+        return *ctx._M_target;
+    }
+};
+
+} // namespace integer_detail
 
 } // namespace gmp
 

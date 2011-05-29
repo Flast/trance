@@ -112,8 +112,9 @@ private:
 
 public:
     leak_checker( void )
-      : _M_ostr( 0 ),
-        _M_prev_chain( _M_checker_chain )
+      : _M_prev_chain( _M_checker_chain ),
+        _M_ostr( 0 )
+
     {
         _M_checker_chain = this;
 
