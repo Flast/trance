@@ -16,5 +16,6 @@ test_main( int, char *[] )
         return _n - 1;
     } );
     BOOST_REQUIRE( 0 == dec( 1 ) );
+    return 0;
 }
 
