@@ -200,6 +200,10 @@
 #       define TRANCE_HAS_NOEXCEPT
 #   endif // BOOST_NO_NOEXCEPT
 
+#   ifndef BOOST_NO_DECLTYPE_N3276
+#       define TRANCE_HAS_DECLTYPE_N3276
+#   endif // BOOST_NO_DECLTYPE_N3276
+
 #endif // TRANCE_CONFIG_USE_AS_TRUNK
 
 // Utilities
