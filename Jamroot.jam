@@ -84,12 +84,22 @@ for local library in $(libraries)
     explicit-alias $(library) : /trance/$(library)//trance_$(library) ;
 }
 
+local rule expand_library_name ( name * )
+{
+    local expands ;
+    for local library in $(name)
+    {
+        expands = $(expands) /trance/$(library)//trance_$(library) ;
+    }
+    return $(expands) ;
+}
+
 # Install Trance.
 explicit install ;
 package.install install trance
   : <install-source-root>$(project-root)
   : # no binaries
-  : $(libraries)
+  : [ expand_library_name $(libraries) ]
   : [ path.glob-tree $(project-root)/trance : *.hpp ]
   ;
 
