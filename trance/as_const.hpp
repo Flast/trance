@@ -33,6 +33,11 @@ TRANCE_CONSTEXPR const T &
 as_const( T &_x ) TRANCE_NOEXCEPT
 { return _x; }
 
+template < typename T >
+TRANCE_CONSTEXPR const T &
+as_const( const T &_x ) TRANCE_NOEXCEPT
+{ return _x; }
+
 } // namespace trance
 
 #endif // IG_TRANCE_AS_CONST_HPP_ONCE_

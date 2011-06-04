@@ -25,6 +25,8 @@
 
 #include <trance/config.hpp>
 
+#include <cstring>
+#include <iosfwd>
 #include <algorithm> // for iter_swap
 
 #include <boost/utility/enable_if.hpp>
@@ -33,8 +35,11 @@
 
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/and.hpp>
+#include <boost/mpl/placeholders.hpp>
 
 #include <boost/proto/proto.hpp>
+
+#include <trance/as_const.hpp>
 
 #include <trance/gmp/config.hpp>
 
@@ -103,6 +108,10 @@ class integer
     template < typename >
     friend class integer_detail::context;
 
+    template < typename _CharT, typename _CharTraits >
+    friend ::std::basic_ostream< _CharT, _CharTraits > &
+    operator<<( ::std::basic_ostream< _CharT, _CharTraits > &, const integer & );
+
     typedef mpz_t _internal_type;
 
     _internal_type _M_internal;
@@ -167,8 +176,56 @@ struct is_integer< integer >
 
 BOOST_PROTO_DEFINE_OPERATORS( is_integer, integer_detail::domain )
 
+template < typename _CharT, typename _CharTraits >
+::std::basic_ostream< _CharT, _CharTraits > &
+operator<<( ::std::basic_ostream< _CharT, _CharTraits > &_ostr, const integer &_value )
+{
+    struct _free_functor
+    {
+        typedef void _free( void *, size_t );
+
+        _free *_M_free;
+        char  *_M_str;
+
+        _free_functor( void )
+        {
+            mp_get_memory_functions( 0, 0, &_M_free );
+            if ( !_M_free )
+            { throw; } // TODO
+        }
+
+        ~_free_functor( void )
+        { _M_free( _M_str, ::std::strlen( _M_str ) + 1 ); }
+
+        void
+        set( char *str ) TRANCE_NOEXCEPT
+        { _M_str = str; }
+
+        char *
+        get( void ) const TRANCE_NOEXCEPT
+        { return _M_str; }
+    } deleter;
+    deleter.set( mpz_get_str( 0, 10, _value._M_internal ) );
+
+    _ostr << as_const( deleter.get() );
+    return _ostr;
+}
+
 namespace integer_detail
 {
+
+template < typename _CharT, typename _CharTraits, typename Expr >
+::std::basic_ostream< _CharT, _CharTraits > &
+operator<<(
+  ::std::basic_ostream< _CharT, _CharTraits > &_ostr
+, const expression< Expr > &_expr )
+{
+    typedef context< integer > icontext;
+
+    integer i;
+    _ostr << ::boost::proto::eval( _expr, icontext( i ) );
+    return _ostr;
+}
 
 template < typename _target_type >
 template < typename _Expr >
