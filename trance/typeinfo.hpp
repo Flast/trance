@@ -56,31 +56,31 @@ class _type_info_base
     operator=( const _type_info_base & ) TRANCE_DELETED_FUNCTION;
 
 protected:
-    const ::std::type_info &_M_internal;
+    const ::std::type_info &_m_internal;
 
     explicit
     _type_info_base( const ::std::type_info &_ti )
-      : _M_internal( _ti ) {}
+      : _m_internal( _ti ) {}
 
 public:
     const char *
     name( void ) const
-    { return _M_internal.name(); }
+    { return _m_internal.name(); }
 
     bool
     before( const ::std::type_info &_other ) const TRANCE_NOEXCEPT
-    { return _M_internal.before( _other ); }
+    { return _m_internal.before( _other ); }
 
     bool
     operator==( const ::std::type_info &_other ) const TRANCE_NOEXCEPT
-    { return _M_internal.operator==( _other ); }
+    { return _m_internal.operator==( _other ); }
 
     bool
     operator!=( const ::std::type_info &_other ) const TRANCE_NOEXCEPT
-    { return _M_internal.operator!=( _other ); }
+    { return _m_internal.operator!=( _other ); }
 
     operator const ::std::type_info &( void ) const TRANCE_NOEXCEPT
-    { return _M_internal; }
+    { return _m_internal; }
 };
 
 #if defined( __GNUC__ ) && defined( __GNUC_MINOR__ )
@@ -142,7 +142,7 @@ protected:
 public:
     ::std::size_t
     hash_code( void ) const TRANCE_NOEXCEPT
-    { return _base_t::_M_internal.hash_code(); }
+    { return _base_t::_m_internal.hash_code(); }
 };
 #endif // TRANCE_USE_TYPEINFO_PARTIAL_SPEC
 
@@ -165,17 +165,17 @@ public:
 
 class bad_typeid
 {
-    const char * const _M_what_message;
+    const char * const _m_what_message;
 
 protected:
     TRANCE_CONSTEXPR explicit
     bad_typeid( const char *_mes ) TRANCE_NOEXCEPT
-      : _M_what_message( _mes ) {}
+      : _m_what_message( _mes ) {}
 
 public:
     TRANCE_CONSTEXPR const char *
     what( void ) const TRANCE_NOEXCEPT
-    { return _M_what_message; }
+    { return _m_what_message; }
 
     TRANCE_ATTRIBUTE_NORETURN
     /*[[noreturn]]*/ virtual void
@@ -224,15 +224,15 @@ struct _deleter_with_free
 struct _messaged_bad_alloc
   : public ::std::bad_alloc
 {
-    const char *_M_what_message;
+    const char *_m_what_message;
 
     explicit
     _messaged_bad_alloc( const char *_mes ) TRANCE_NOEXCEPT
-      : _M_what_message( _mes ) {}
+      : _m_what_message( _mes ) {}
 
     const char *
     what( void ) const TRANCE_THROW_SPEC_OR_NOEXCEPT
-    { return _M_what_message; }
+    { return _m_what_message; }
 };
 #endif
 
@@ -289,16 +289,16 @@ class _type_info_impl
 
     typedef ::std::string _demangled_name_type;
 
-    _demangled_name_type _M_demangled_name;
+    _demangled_name_type _m_demangled_name;
 
     explicit
     _type_info_impl( const ::std::type_info &_ti )
       : type_info( _ti ),
-        _M_demangled_name( _demangle( _ti ) ) {}
+        _m_demangled_name( _demangle( _ti ) ) {}
 
     _type_info_impl( const _type_info_impl &_impl )
-      : type_info( _impl._M_internal ),
-        _M_demangled_name( _impl._M_demangled_name ) {}
+      : type_info( _impl._m_internal ),
+        _m_demangled_name( _impl._m_demangled_name ) {}
 
     struct _generics_typeid_invoke_tag {};
 
@@ -311,11 +311,11 @@ public:
 
     _type_info_impl( _generics_typeid_invoke_tag, const ::std::type_info &_ti )
       : type_info( _ti ),
-        _M_demangled_name( _demangle( _ti ) ) {}
+        _m_demangled_name( _demangle( _ti ) ) {}
 
     const char *
     demangled_name( void ) const TRANCE_NOEXCEPT
-    { return _M_demangled_name.c_str(); }
+    { return _m_demangled_name.c_str(); }
 
     const _type_info_impl
     _internal_use_only_do_clone( void ) const

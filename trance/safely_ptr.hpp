@@ -160,7 +160,7 @@ public:
     typedef T & reference;
 
 private:
-    pointer _M_ptr;
+    pointer _m_ptr;
 
     void
     _null_check( void ) const
@@ -172,32 +172,32 @@ private:
 public:
     TRANCE_CONSTEXPR
     safely_ptr( void ) TRANCE_NOEXCEPT
-      : _M_ptr() {}
+      : _m_ptr() {}
 
 #if defined( TRANCE_HAS_NULLPTR )
     TRANCE_CONSTEXPR
     safely_ptr( ::std::nullptr_t )
-      : _M_ptr() {}
+      : _m_ptr() {}
 #endif // TRANCE_HAS_NULLPTR
 
     explicit
     safely_ptr( pointer _ptr ) TRANCE_NOEXCEPT
-      : _M_ptr( _ptr ) {}
+      : _m_ptr( _ptr ) {}
 
     safely_ptr( const safely_ptr &_ptr ) TRANCE_NOEXCEPT
-      : _M_ptr( _ptr.get() ) {}
+      : _m_ptr( _ptr.get() ) {}
 
     template < typename U >
     safely_ptr( const safely_ptr< U > &_ptr ) TRANCE_NOEXCEPT
-      : _M_ptr( static_pointer_cast< element_type >( _ptr ).get() ) {}
+      : _m_ptr( static_pointer_cast< element_type >( _ptr ).get() ) {}
 
 #if defined( TRANCE_HAS_RVALUE_REFERENCES )
     safely_ptr( safely_ptr &&_ptr ) TRANCE_NOEXCEPT
-      : _M_ptr( _ptr.get() ) {}
+      : _m_ptr( _ptr.get() ) {}
 
     template < typename U >
     safely_ptr( safely_ptr< U > &&_ptr ) TRANCE_NOEXCEPT
-      : _M_ptr( static_pointer_cast< element_type >( _ptr ).get() ) {}
+      : _m_ptr( static_pointer_cast< element_type >( _ptr ).get() ) {}
 #endif // TRANCE_HAS_RVALUE_REFERENCES
 
     safely_ptr &
@@ -264,13 +264,13 @@ public:
 
     pointer
     get( void ) const TRANCE_NOEXCEPT
-    { return _M_ptr; }
+    { return _m_ptr; }
 
     pointer
     release( void ) TRANCE_NOEXCEPT
     {
         pointer _p = get();
-        _M_ptr = pointer();
+        _m_ptr = pointer();
         return _p;
     }
 
@@ -282,7 +282,7 @@ public:
     swap( safely_ptr &_ptr ) TRANCE_NOEXCEPT
     {
         using ::std::swap;
-        swap( _M_ptr, _ptr._M_ptr );
+        swap( _m_ptr, _ptr._m_ptr );
     }
 };
 
@@ -295,7 +295,7 @@ public:
     typedef T & reference;
 
 private:
-    pointer _M_ptr;
+    pointer _m_ptr;
 
     void
     _null_check( void ) const
@@ -307,32 +307,32 @@ private:
 public:
     TRANCE_CONSTEXPR
     safely_ptr( void ) TRANCE_NOEXCEPT
-      : _M_ptr() {}
+      : _m_ptr() {}
 
 #if defined( TRANCE_HAS_NULLPTR )
     TRANCE_CONSTEXPR
     safely_ptr( ::std::nullptr_t )
-      : _M_ptr() {}
+      : _m_ptr() {}
 #endif
 
     explicit
     safely_ptr( pointer _ptr ) TRANCE_NOEXCEPT
-      : _M_ptr( _ptr ) {}
+      : _m_ptr( _ptr ) {}
 
     safely_ptr( const safely_ptr &_ptr ) TRANCE_NOEXCEPT
-      : _M_ptr( _ptr.get() ) {}
+      : _m_ptr( _ptr.get() ) {}
 
     template < typename U >
     safely_ptr( const safely_ptr< U > &_ptr ) TRANCE_NOEXCEPT
-      : _M_ptr( static_pointer_cast< element_type[] >( _ptr ).get() ) {}
+      : _m_ptr( static_pointer_cast< element_type[] >( _ptr ).get() ) {}
 
 #if defined( BOOST_HAS_RVALUE_REFS )
     safely_ptr( safely_ptr &&_ptr ) TRANCE_NOEXCEPT
-      : _M_ptr( _ptr.get() ) {}
+      : _m_ptr( _ptr.get() ) {}
 
     template < typename U >
     safely_ptr( safely_ptr< U > &&_ptr ) TRANCE_NOEXCEPT
-      : _M_ptr( static_pointer_cast< element_type[] >( _ptr ).get() ) {}
+      : _m_ptr( static_pointer_cast< element_type[] >( _ptr ).get() ) {}
 #endif // !TRANCE_HAS_RVALUE_REFERENCES
 
     safely_ptr &
@@ -392,13 +392,13 @@ public:
 
     pointer
     get( void ) const TRANCE_NOEXCEPT
-    { return _M_ptr; }
+    { return _m_ptr; }
 
     pointer
     release( void ) TRANCE_NOEXCEPT
     {
         pointer _p = get();
-        _M_ptr = pointer();
+        _m_ptr = pointer();
         return _p;
     }
 
@@ -410,7 +410,7 @@ public:
     swap( safely_ptr &_ptr ) TRANCE_NOEXCEPT
     {
         using ::std::swap;
-        swap( _M_ptr, _ptr._M_ptr );
+        swap( _m_ptr, _ptr._m_ptr );
     }
 };
 

@@ -35,21 +35,21 @@ struct integral_init
     typedef       T & reference;
     typedef const T & const_reference;
 
-    value_type _M_value;
+    value_type _m_value;
 
     TRANCE_CONSTEXPR
     integral_init( void )
-      : _M_value( _value ) {};
+      : _m_value( _value ) {};
 
     TRANCE_CONSTEXPR
     integral_init( const_reference value )
-      : _M_value( value ) {};
+      : _m_value( value ) {};
 
     operator reference( void ) TRANCE_NOEXCEPT
-    { return _M_value; }
+    { return _m_value; }
 
     operator const_reference( void ) const TRANCE_NOEXCEPT
-    { return _M_value; }
+    { return _m_value; }
 };
 
 } // namespace trance
