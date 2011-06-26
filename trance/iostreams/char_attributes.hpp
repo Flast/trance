@@ -69,7 +69,10 @@ struct attribute
 
 inline iostreams_detail::_attribute_forwarder< attribute >
 chattr( attribute::value_type attr = attribute::reset ) TRANCE_NOEXCEPT
-{ return { attr }; }
+{
+    const iostreams_detail::_attribute_forwarder< attribute > _attr = { attr };
+    return _attr;
+}
 
 } // namespace iostreams
 
