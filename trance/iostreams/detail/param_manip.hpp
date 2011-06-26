@@ -24,39 +24,12 @@
 #   error "detail/param_manip.hpp should not include directly."
 #endif
 
-#if BOOST_PP_ITERATION_DEPTH() == 2
-
-#define j_ BOOST_PP_FRAME_ITERATION( 2 )
-
-#define OSTREAM( _Traits )                \
-  ::std::basic_ostream<                   \
-    TRANCE_IOSTREAMS_GET_CHAR_TYPE( j_ ), \
-    _Traits                               \
-  >                                       \
-
-template < typename _CharTraits >
-inline OSTREAM( _CharTraits ) &
-operator<<( OSTREAM( _CharTraits ) &_ostr, const MANIP_NAME &_param )
-{
-    namespace iostreams = ::trance::iostreams;
-    using namespace iostreams::iostreams_detail::_detail;
-    _esc_seq_initializer( _ostr );
-      _param._M_pref( _ostr );
-        _ostr << _param._M_param;
-      _param._M_suf( _ostr );
-    _esc_seq_finalizer( _ostr );
-    return _ostr;
-}
-
-#undef OSTREAM
-
-#undef j_
-
-#elif BOOST_PP_ITERATION_DEPTH() == 1
+#if BOOST_PP_ITERATION_DEPTH() == 1
 
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/dec.hpp>
 #include <boost/preprocessor/tuple/elem.hpp>
+#include <boost/preprocessor/iteration/local.hpp>
 
 #define i_ BOOST_PP_FRAME_ITERATION( 1 )
 
@@ -77,11 +50,34 @@ namespace iostreams_detail
 namespace _param_detail
 {
 
-#define BOOST_PP_ITERATION_PARAMS_2 ( 3, ( \
-  0, \
-  BOOST_PP_DEC( TRANCE_IOSTREAMS_CHAR_TUPLE_SIZE ), \
-  "trance/iostreams/detail/param_manip.hpp" ) )
-#include BOOST_PP_ITERATE()
+#define OSTREAM( n_, _Traits )            \
+  ::std::basic_ostream<                   \
+    TRANCE_IOSTREAMS_GET_CHAR_TYPE( n_ ), \
+    _Traits                               \
+  >                                       \
+
+#define BOOST_PP_LOCAL_LIMITS \
+  ( 0, BOOST_PP_DEC( TRANCE_IOSTREAMS_CHAR_TUPLE_SIZE ) )
+#define BOOST_PP_LOCAL_MACRO( n_ )                          \
+  template < typename _CharTraits >                         \
+  inline OSTREAM( n_, _CharTraits ) &                       \
+  operator<<(                                               \
+    OSTREAM( n_, _CharTraits ) &_ostr                       \
+  , const MANIP_NAME &_param )                              \
+  {                                                         \
+      namespace iostreams = ::trance::iostreams;            \
+      using namespace iostreams::iostreams_detail::_detail; \
+      _esc_seq_initializer( _ostr );                        \
+        _param._M_pref( _ostr );                            \
+          _ostr << _param._M_param;                         \
+        _param._M_suf( _ostr );                             \
+      _esc_seq_finalizer( _ostr );                          \
+      return _ostr;                                         \
+  }                                                         \
+
+#include BOOST_PP_LOCAL_ITERATE()
+
+#undef OSTREAM
 
 } // namespace _param_detail
 
