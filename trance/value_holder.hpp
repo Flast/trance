@@ -25,14 +25,14 @@
 
 #include <trance/config.hpp>
 
-#ifdef TRANCE_HAS_RVALUE_REFERENCES
+#if defined( TRANCE_HAS_RVALUE_REFERENCES )
 #   include <utility>
 #endif // TRANCE_HAS_RVALUE_REFERENCES
 
 #include <boost/function.hpp>
-#include <boost/functional.hpp>
 
 #include <boost/type_traits/decay.hpp>
+#include <boost/type_traits/remove_reference.hpp>
 
 #if !defined( TRANCE_HAS_EXPLICIT_CONVERSION_OPERATORS )
 #   include <trance/safe_bool.hpp>
@@ -44,13 +44,13 @@ namespace trance
 namespace value_holder_detail_
 {
 
-template < typename Signature >
-inline bool
-_default_evaluator(
-  typename ::boost::unary_traits<
-    typename ::boost::decay< Signature >::type
-  >::argument_type _value ) TRANCE_NOEXCEPT
-{ return static_cast< bool >( _value ); }
+struct _default_evaluator
+{
+    template < typename T >
+    bool
+    operator()( const T &_value ) TRANCE_NOEXCEPT
+    { return static_cast< bool >( _value ); }
+};
 
 } // namespace value_holder_detail_
 
@@ -60,56 +60,49 @@ template <
 >
 struct value_holder
 {
-    T         _m_value, *_m_indirect_value;
+    template < typename, typename >
+    friend class value_holder;
+
+private:
+    T         _m_value, * const _m_indirect_value;
     Predicate _m_pred;
-
-#if !defined( TRANCE_HAS_RVALUE_REFERENCES )
-    template < typename U >
-    value_holder( U &_value )
-      : _m_value( _value ), _m_indirect_value( &_m_value )
-      , _m_pred( value_holder_detail_::_default_evaluator< Predicate > ) {}
-
-    template < typename U >
-    value_holder( const U &_value )
-      : _m_value( _value ), _m_indirect_value( &_m_value )
-      , _m_pred( value_holder_detail_::_default_evaluator< Predicate > ) {}
-
-    template < typename U, typename P >
-    value_holder( U &_value, P &_pred )
-      : _m_value( _value ), _m_indirect_value( &_m_value )
-      , _m_pred( _pred ) {}
-
-    template < typename U, typename P >
-    value_holder( const U &_value, P &_pred )
-      : _m_value( _value ), _m_indirect_value( &_m_value )
-      , _m_pred( _pred ) {}
-
-    template < typename U, typename P >
-    value_holder( U &_value, const P &_pred )
-      : _m_value( _value ), _m_indirect_value( &_m_value )
-      , _m_pred( _pred ) {}
-
-    template < typename U, typename P >
-    value_holder( const U &_value, const P &_pred )
-      : _m_value( _value ), _m_indirect_value( &_m_value )
-      , _m_pred( _pred ) {}
-#else
-    template < typename U >
-    value_holder( U &&_value )
-      : _m_value( ::std::forward< U >( _value ) )
-      , _m_indirect_value( &_m_value )
-      , _m_pred( value_holder_detail_::_default_evaluator< Predicate > ) {}
-
-    template < typename U, typename P >
-    value_holder( U &&_value, P &&_pred )
-      : _m_value( ::std::forward< U >( _value ) )
-      , _m_indirect_value( &_m_value )
-      , _m_pred( ::std::forward< P >( _pred ) ) {}
-#endif // TRANCE_HAS_RVALUE_REFERENCES
 
     inline bool
     _internal_condition( void ) const TRANCE_NOEXCEPT
     { return _m_pred( ::boost::ref( *_m_indirect_value ) ); }
+
+public:
+    template < typename U, typename P >
+    value_holder( const value_holder< U, P > &_vh )
+      : _m_value( _vh._m_value ), _m_indirect_value( &_m_value )
+      , _m_pred( _vh._m_pred ) {}
+
+#if !defined( TRANCE_HAS_RVALUE_REFERENCES )
+    value_holder( const T &_value )
+      : _m_value( _value ), _m_indirect_value( &_m_value )
+      , _m_pred( value_holder_detail_::_default_evaluator() ) {}
+
+    template < typename P >
+    value_holder( const T &_value, P _pred )
+      : _m_value( _value ), _m_indirect_value( &_m_value )
+      , _m_pred( _pred ) {}
+#else
+    template < typename U, typename P >
+    value_holder( value_holder< U, P > &&_vh )
+      : _m_value( ::std::move( _vh._m_value ) ), _m_indirect_value( &_m_value )
+      , _m_pred( ::std::move( _vh._m_pred ) ) {}
+
+    template < typename U >
+    value_holder( U &&_value )
+      : _m_value( ::std::forward< U >( _value ) )
+      , _m_indirect_value( &_m_value )
+      , _m_pred( value_holder_detail_::_default_evaluator() ) {}
+
+    template < typename U, typename P >
+    value_holder( U &&_value, P _pred )
+      : _m_value( ::std::forward< U >( _value ) )
+      , _m_indirect_value( &_m_value ), _m_pred( _pred ) {}
+#endif // TRANCE_HAS_RVALUE_REFERENCES
 
 #if !defined( TRANCE_HAS_EXPLICIT_CONVERSION_OPERATORS )
     operator safe_bool_t( void ) const TRANCE_NOEXCEPT
@@ -128,6 +121,38 @@ struct value_holder
     get( void ) const TRANCE_NOEXCEPT
     { return _m_value; }
 };
+
+#if !defined( TRANCE_HAS_RVALUE_REFERENCES )
+template < typename T >
+value_holder< typename ::boost::remove_reference< T >::type >
+make_holder( T &&_value )
+{ return value_holder< typename ::boost::remove_reference< T >::type >( ::std::forward< T >( _value ) ); }
+
+template < typename T, typename P >
+value_holder< typename ::boost::remove_reference< T >::type, P >
+make_holder( T &&_value, P _pred )
+{ return value_holder< typename ::boost::remove_reference< T >::type, P >( std::forward< T >( _value ), _pred ); }
+#else
+template < typename T >
+value_holder< T >
+make_holder( T &_value )
+{ return value_holder< T >( _value ); }
+
+template < typename T >
+value_holder< const T >
+make_holder( const T &_value )
+{ return value_holder< const T >( _value ); }
+
+template < typename T, typename P >
+value_holder< T, P >
+make_holder( T &_value, P _pred )
+{ return value_holder< T, P >( _value, _pred ); }
+
+template < typename T, typename P >
+value_holder< const T, P >
+make_holder( const T &_value, P _pred )
+{ return value_holder< const T, P >( _value, _pred ); }
+#endif
 
 } // namespace trance
 
