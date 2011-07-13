@@ -124,16 +124,6 @@ public:
 
 #if !defined( TRANCE_HAS_RVALUE_REFERENCES )
 template < typename T >
-value_holder< typename ::boost::remove_reference< T >::type >
-make_holder( T &&_value )
-{ return value_holder< typename ::boost::remove_reference< T >::type >( ::std::forward< T >( _value ) ); }
-
-template < typename T, typename P >
-value_holder< typename ::boost::remove_reference< T >::type, P >
-make_holder( T &&_value, P _pred )
-{ return value_holder< typename ::boost::remove_reference< T >::type, P >( std::forward< T >( _value ), _pred ); }
-#else
-template < typename T >
 value_holder< T >
 make_holder( T &_value )
 { return value_holder< T >( _value ); }
@@ -152,6 +142,16 @@ template < typename T, typename P >
 value_holder< const T, P >
 make_holder( const T &_value, P _pred )
 { return value_holder< const T, P >( _value, _pred ); }
+#else
+template < typename T >
+value_holder< typename ::boost::remove_reference< T >::type >
+make_holder( T &&_value )
+{ return value_holder< typename ::boost::remove_reference< T >::type >( ::std::forward< T >( _value ) ); }
+
+template < typename T, typename P >
+value_holder< typename ::boost::remove_reference< T >::type, P >
+make_holder( T &&_value, P _pred )
+{ return value_holder< typename ::boost::remove_reference< T >::type, P >( std::forward< T >( _value ), _pred ); }
 #endif
 
 } // namespace trance
