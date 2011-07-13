@@ -205,12 +205,12 @@
 
 #endif // 104700 <= BOOST_VERSION
 
+// Boost 1.47.0 does not support yet.
+#if defined( TRANCE_CONFIG_USE_AS_TRUNK )
+
 #   ifndef BOOST_NO_DECLTYPE_N3276
 #       define TRANCE_HAS_DECLTYPE_N3276
 #   endif // BOOST_NO_DECLTYPE_N3276
-
-// Boost 1.47.0 does not support yet.
-#if defined( TRANCE_CONFIG_USE_AS_TRUNK )
 
 #endif // TRANCE_CONFIG_USE_AS_TRUNK
 
