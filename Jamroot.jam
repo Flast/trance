@@ -112,5 +112,4 @@ for local test in $(tests)
     use-project /trance/$(test)/test : libs/$(test)/test ;
 }
 
-explicit check ;
-alias check : /trance/$(tests)/test//trance_test_exec ;
+explicit-alias check : /trance/$(tests)/test//trance_test_exec ;

@@ -1,0 +1,20 @@
+import sequence ;
+
+project /trance/algorithm/test
+  : parent /trance
+  : requirements
+      $(boost-requirements)
+      $(project-requirements)
+  ;
+
+local tests-run = [ sequence.unique
+  [ MATCH (.*/run[0-9]*).cpp : [ glob */*.cpp ] ] ] ;
+
+explicit-alias trance_test_exec
+  : /trance/algorithm/test//$(tests-run)
+  ;
+
+for local test-run in $(tests-run)
+{
+    named-run $(test-run) : $(test-run).cpp ;
+}
