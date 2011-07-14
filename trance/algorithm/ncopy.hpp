@@ -1,4 +1,4 @@
-// trance copy_n.hpp - Extended copy algorithm.
+// trance ncopy.hpp - Extended copy algorithm.
 //
 // Copyright (c) 2011 - 2011 Kohei Takahashi (Flast)
 //
@@ -20,8 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef IG_TRANCE_ALGORITHM_COPY_N_HPP_ONCE_
-#define IG_TRANCE_ALGORITHM_COPY_N_HPP_ONCE_
+#ifndef IG_TRANCE_ALGORITHM_NCOPY_HPP_ONCE_
+#define IG_TRANCE_ALGORITHM_NCOPY_HPP_ONCE_
 
 #include <boost/concept_check.hpp>
 
@@ -32,7 +32,7 @@ namespace trance
 
 template < typename InputIterator, typename Size, typename OutputIterator >
 inline OutputIterator
-copy_n( InputIterator _itr, InputIterator _end, Size _n, OutputIterator _result )
+ncopy( InputIterator _itr, InputIterator _end, Size _n, OutputIterator _result )
 {
     using namespace boost_concepts;
     BOOST_CONCEPT_ASSERT(( SinglePassIteratorConcept< InputIterator > ));
@@ -47,5 +47,5 @@ copy_n( InputIterator _itr, InputIterator _end, Size _n, OutputIterator _result 
 
 } // namespace trance
 
-#endif // IG_TRANCE_ALGORITHM_COPY_N_HPP_ONCE_
+#endif // IG_TRANCE_ALGORITHM_NCOPY_HPP_ONCE_
 

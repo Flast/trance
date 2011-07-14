@@ -1,4 +1,4 @@
-// trance copy_n.hpp - Extended copy algorithm.
+// trance ncopy.hpp - Extended copy algorithm.
 //
 // Copyright (c) 2011 - 2011 Kohei Takahashi (Flast)
 //
@@ -20,14 +20,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef IG_TRANCE_RANGE_COPY_N_HPP_ONCE_
-#define IG_TRANCE_RANGE_COPY_N_HPP_ONCE_
+#ifndef IG_TRANCE_RANGE_NCOPY_HPP_ONCE_
+#define IG_TRANCE_RANGE_NCOPY_HPP_ONCE_
 
 #include <boost/range/concepts.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 
-#include <trance/algorithm/copy_n.hpp>
+#include <trance/algorithm/ncopy.hpp>
 
 namespace trance
 {
@@ -37,19 +37,19 @@ namespace range
 
 template < typename SinglePassRange, typename Size, typename OutputIterator >
 inline OutputIterator
-copy_n( const SinglePassRange &range, Size _n, OutputIterator _result )
+ncopy( const SinglePassRange &range, Size _n, OutputIterator _result )
 {
     using namespace boost;
     BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept< const SinglePassRange > ));
 
-    return ::trance::copy_n( boost::begin( range ), boost::end( range ), _n, _result );
+    return ::trance::ncopy( boost::begin( range ), boost::end( range ), _n, _result );
 }
 
 } // namespace range
 
-using range::copy_n;
+using range::ncopy;
 
 } // namespace trance
 
-#endif // IG_TRANCE_RANGE_COPY_N_HPP_ONCE_
+#endif // IG_TRANCE_RANGE_NCOPY_HPP_ONCE_
 
