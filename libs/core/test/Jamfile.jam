@@ -7,14 +7,11 @@ project /trance/core/test
       $(project-requirements)
   ;
 
-local tests-run = [ sequence.unique
+local run-tests = [ sequence.unique
   [ MATCH (.*/run[0-9]*).cpp : [ glob */*.cpp ] ] ] ;
 
 explicit-alias trance_test_exec
-  : /trance/core/test//$(tests-run)
+  : /trance/core/test//$(run-tests)
   ;
 
-for local test-run in $(tests-run)
-{
-    named-run $(test-run) : $(test-run).cpp ;
-}
+test-run $(run-tests) ;

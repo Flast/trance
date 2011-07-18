@@ -7,11 +7,11 @@ project /trance/algorithm/test
       $(project-requirements)
   ;
 
-local run-tests = [ sequence.unique
-  [ MATCH (.*/run[0-9]*).cpp : [ glob */*.cpp ] ] ] ;
+local compile-tests = [ sequence.unique
+  [ MATCH (.*/compile[0-9]*).cpp : [ glob */*.cpp ] ] ] ;
 
 explicit-alias trance_test_exec
-  : /trance/algorithm/test//$(run-tests)
+  : /trance/algorithm/test//$(compile-tests)
   ;
 
-test-run $(run-tests) ;
+test-compile $(compile-tests) ;
