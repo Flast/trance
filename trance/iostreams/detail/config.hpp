@@ -114,12 +114,12 @@ namespace iostreams
 namespace iostreams_detail
 {
 
-template < typename _Attribute >
+template < typename Attribute >
 struct _attribute_forwarder
 {
-    typedef typename _Attribute::value_type value_type;
+    typedef typename Attribute::value_type value_type;
 
-    value_type _M_value;
+    value_type _m_value;
 };
 
 namespace _param_detail
@@ -129,27 +129,27 @@ namespace _param_detail
   iostreams_detail::_param_detail::_param_manip_impl \
 
 template <
-  typename _Param,
-  //typename _Delimiter,
-  typename _Prefixer,
-  typename _Suffixer
+  typename Param,
+  //typename Delimiter,
+  typename Prefixer,
+  typename Suffixer
 >
 struct _param_manip_impl
 {
-    _Param     _M_param;
-    //_Delimiter _M_delimiter;
-    _Prefixer _M_pref;
-    _Suffixer _M_suf;
+    Param     _m_param;
+    //Delimiter _m_delimiter;
+    Prefixer _m_pref;
+    Suffixer _m_suf;
 
     explicit
-    _param_manip_impl( const _Param &_x )
-      : _M_param( _x ), //_M_delimiter(),
-        _M_pref(), _M_suf() {}
+    _param_manip_impl( const Param &_x )
+      : _m_param( _x ), //_m_delimiter(),
+        _m_pref(), _m_suf() {}
 
-    _param_manip_impl( const _Param &_x, //_Delimiter _delim,
-      _Prefixer _pref, _Suffixer _suf )
-      : _M_param( _x ), //_M_delimiter( _delim ),
-        _M_pref( _pref ), _M_suf( _suf ) {}
+    _param_manip_impl( const Param &_x, //Delimiter _delim,
+      Prefixer _pref, Suffixer _suf )
+      : _m_param( _x ), //_m_delimiter( _delim ),
+        _m_pref( _pref ), _m_suf( _suf ) {}
 };
 
 } // namespace _param_detail

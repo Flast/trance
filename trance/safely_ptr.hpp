@@ -463,8 +463,8 @@ operator<( const safely_ptr< T > &_x,
     typedef BOOST_DEDUCED_TYPENAME ::boost::common_type<
       BOOST_DEDUCED_TYPENAME safely_ptr< T >::pointer,
       BOOST_DEDUCED_TYPENAME safely_ptr< U >::pointer
-    >::type _CT;
-    return ::std::less< _CT >( _x.get(), _y.get() );
+    >::type CT;
+    return ::std::less< CT >( _x.get(), _y.get() );
 }
 
 #if defined( TRANCE_HAS_NULLPTR )

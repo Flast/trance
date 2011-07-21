@@ -50,33 +50,33 @@ protected:
       ;
 
 private:
-    stream_type &_M_ostr;
-    count_type _M_count, _M_expected;
+    stream_type &_m_ostr;
+    count_type _m_count, _m_expected;
 
 protected:
     progress_display(
       _construct_without_restart_tag,
       count_type _expected,
       stream_type &_ostr ) TRANCE_NOEXCEPT
-      : _M_ostr( _ostr ),
-        _M_count( 0 ), _M_expected( _expected ? _expected : 1u ) {}
+      : _m_ostr( _ostr ),
+        _m_count( 0 ), _m_expected( _expected ? _expected : 1u ) {}
 
     progress_display( count_type _expected, stream_type &_ostr ) TRANCE_NOEXCEPT
-      : _M_ostr( _ostr ),
-        _M_count( 0 ), _M_expected( _expected ? _expected : 1u )
+      : _m_ostr( _ostr ),
+        _m_count( 0 ), _m_expected( _expected ? _expected : 1u )
     { restart( _expected ); }
 
     stream_type &
     _ostr( void ) TRANCE_NOEXCEPT
-    { return _M_ostr; }
+    { return _m_ostr; }
 
     inline count_type
     _increment_count( unsigned int _x = 1u ) TRANCE_NOEXCEPT
-    { return _M_count += _x; }
+    { return _m_count += _x; }
 
     inline count_type
     _decrement_count( unsigned int _x = 1u ) TRANCE_NOEXCEPT
-    { return _M_count -= _x; }
+    { return _m_count -= _x; }
 
     virtual void
     _restart_impl( void ) {}
@@ -88,8 +88,8 @@ public:
     void
     restart( count_type _expected )
     {
-        _M_count = 0u;
-        _M_expected = _expected ? _expected : 1u;
+        _m_count = 0u;
+        _m_expected = _expected ? _expected : 1u;
         _restart_impl();
     }
 
@@ -107,22 +107,22 @@ public:
 
     inline count_type
     count( void ) const TRANCE_NOEXCEPT
-    { return _M_count; }
+    { return _m_count; }
 
     inline count_type
     expected_count( void ) const TRANCE_NOEXCEPT
-    { return _M_expected; }
+    { return _m_expected; }
 };
 
 // same as boost::progress_display
 class boost_progress_display
   : public progress_display
 {
-    const ::std::string _M_s1, _M_s2, _M_s3;
-    count_type _M_next_count;
+    const ::std::string _m_s1, _m_s2, _m_s3;
+    count_type _m_next_count;
 
 protected:
-    count_type _M_tic;
+    count_type _m_tic;
 
     boost_progress_display(
       _construct_without_restart_tag _flag,
@@ -132,36 +132,36 @@ protected:
       const ::std::string &_s2,
       const ::std::string &_s3 )
       : progress_display( _flag, _expected, _ostr ),
-        _M_s1( _s1 ), _M_s2( _s2 ), _M_s3( _s3 ) {}
+        _m_s1( _s1 ), _m_s2( _s2 ), _m_s3( _s3 ) {}
 
     virtual void
     _restart_impl( void )
     {
-        _M_next_count = _M_tic = 0;
+        _m_next_count = _m_tic = 0;
 
         _ostr() << ::std::endl
-          << _M_s1 << "0%   10   20   30   40   50   60   70   80   90   100%\n"
-          << _M_s2 << "|----|----|----|----|----|----|----|----|----|----|"
+          << _m_s1 << "0%   10   20   30   40   50   60   70   80   90   100%\n"
+          << _m_s2 << "|----|----|----|----|----|----|----|----|----|----|"
           << ::std::endl
-          << _M_s3;
+          << _m_s3;
     }
 
     virtual void
     _display_tic_impl( void )
     {
-        if ( count() < _M_next_count )
+        if ( count() < _m_next_count )
         { return; }
 
         const count_type tics_next = count() * 50.0 / expected_count();
 
         do
         { _ostr() << '*' << ::std::flush; }
-        while ( ++_M_tic < tics_next );
+        while ( ++_m_tic < tics_next );
 
-        _M_next_count = _M_tic / 50.0 * expected_count();
+        _m_next_count = _m_tic / 50.0 * expected_count();
         if ( count() == expected_count() )
         {
-            if ( _M_tic < 51 )
+            if ( _m_tic < 51 )
             { _ostr() << '*'; }
             _ostr() << ::std::endl;
         }
@@ -180,7 +180,7 @@ public:
       const ::std::string &_s2 = "",
       const ::std::string &_s3 = "" )
       : progress_display( _expected, _ostr ),
-        _M_s1( _s1 ), _M_s2( _s2 ), _M_s3( _s3 )
+        _m_s1( _s1 ), _m_s2( _s2 ), _m_s3( _s3 )
     { restart( _expected ); }
 
     // name hiding
@@ -200,27 +200,27 @@ public:
 class decrementable_progress_display
   : public boost_progress_display
 {
-    count_type _M_prev_count;
+    count_type _m_prev_count;
 
     void
     _restart_impl( void )
     {
-        _M_prev_count = 0;
+        _m_prev_count = 0;
         boost_progress_display::_restart_impl();
     }
 
     void
     _display_tic_impl( void )
     {
-        const count_type tic = _M_tic ? _M_tic - 1 : _M_tic;
-        _M_prev_count = tic / 50.0 * expected_count();
-        if ( count() <= _M_prev_count )
+        const count_type tic = _m_tic ? _m_tic - 1 : _m_tic;
+        _m_prev_count = tic / 50.0 * expected_count();
+        if ( count() <= _m_prev_count )
         {
             const count_type tics_prev = count() * 50.0 / expected_count();
 
             do
             {
-                if ( _M_tic == 51 )
+                if ( _m_tic == 51 )
                 {
                     _ostr() << iostreams::move_up1
                             << iostreams::move_right( 51 );
@@ -230,7 +230,7 @@ class decrementable_progress_display
                         << iostreams::move_left( 1 )
                         << ::std::flush;
             }
-            while ( --_M_tic > tics_prev );
+            while ( --_m_tic > tics_prev );
         }
         boost_progress_display::_display_tic_impl();
     }

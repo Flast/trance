@@ -186,18 +186,18 @@ namespace typeinfo_detail
 {
 
 #if defined( BOOST_GNU_STDLIB ) && BOOST_GNU_STDLIB
-template < typename _Exception >
+template < typename Exception >
 TRANCE_ATTRIBUTE_NORETURN
 /*[[noreturn]]*/ inline void
 _throw_bad_typeid_with( const char *_mes )
 {
     struct _internal_composite_error
-      : public bad_typeid, public _Exception
+      : public bad_typeid, public Exception
     {
         TRANCE_CONSTEXPR explicit
         _internal_composite_error( const char *_mes ) TRANCE_NOEXCEPT
           : bad_typeid( _mes ),
-            _Exception(
+            Exception(
               "Trance.Typeid: "
               "To process exception correctly, "
               "catch trance::bad_typeid."
@@ -206,7 +206,7 @@ _throw_bad_typeid_with( const char *_mes )
         TRANCE_ATTRIBUTE_NORETURN
         /*[[noreturn]]*/ void
         rethrow_composite_error( void ) const
-        { throw _Exception( bad_typeid::what() ); }
+        { throw Exception( bad_typeid::what() ); }
     };
 
     throw _internal_composite_error( _mes );
@@ -337,10 +337,10 @@ public:
     ::trance::typeinfo_detail::_typeid_by_type< _typeid >() \
   )                                                         \
 
-#define TRANCE_TYPEID_BY_EXPR( _Expr )          \
+#define TRANCE_TYPEID_BY_EXPR( Expr )           \
   static_cast< const ::trance::type_info & >(   \
     ::trance::typeinfo_detail::_typeid_by_expr( \
-      TRANCE_DETAIL_TYPEOF( _Expr )             \
+      TRANCE_DETAIL_TYPEOF( Expr )              \
     )                                           \
   )                                             \
 

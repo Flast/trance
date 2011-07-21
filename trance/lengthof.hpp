@@ -62,12 +62,12 @@ namespace lengthof_detail
     ::trance::lengthof_detail::_lengthof_by_type< _type_id, true >::value \
   )                                                                       \
 
-#define TRANCE_LENGTHOF_BY_EXPR( _Expr )            \
-  static_cast< ::std::size_t >(                     \
-    ::trance::lengthof_detail::_lengthof_by_expr(   \
-      TRANCE_DETAIL_TYPEOF( _Expr )                 \
-    )                                               \
-  )                                                 \
+#define TRANCE_LENGTHOF_BY_EXPR( Expr )           \
+  static_cast< ::std::size_t >(                   \
+    ::trance::lengthof_detail::_lengthof_by_expr( \
+      TRANCE_DETAIL_TYPEOF( Expr )                \
+    )                                             \
+  )                                               \
 
 template < typename, bool >
 struct _lengthof_by_type;

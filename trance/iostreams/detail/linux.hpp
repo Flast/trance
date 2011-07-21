@@ -85,15 +85,15 @@ namespace _detail
 {
 
 #define ESC_SEQ_INITIALIZER_DEF( _unused_z, i_, _unused_param )   \
-  template < typename _CharTraits >                               \
+  template < typename CharTraits >                                \
   inline ::std::basic_ostream<                                    \
     TRANCE_IOSTREAMS_GET_CHAR_TYPE( i_ ),                         \
-    _CharTraits                                                   \
+    CharTraits                                                    \
   > &                                                             \
   _esc_seq_initializer(                                           \
     ::std::basic_ostream<                                         \
       TRANCE_IOSTREAMS_GET_CHAR_TYPE( i_ ),                       \
-      _CharTraits                                                 \
+      CharTraits                                                  \
     > &_ostr )                                                    \
   {                                                               \
       _ostr << TRANCE_IOSTREAMS_GET_CHAR_FORWARD( i_ )( '\x1b' ); \
@@ -105,27 +105,27 @@ BOOST_PP_REPEAT( TRANCE_IOSTREAMS_CHAR_TUPLE_SIZE, ESC_SEQ_INITIALIZER_DEF, _ )
 #undef ESC_SEQ_INITIALIZER_DEF
 
 // nothing to do
-template < typename _CharT, typename _CharTraits >
-inline ::std::basic_ostream< _CharT, _CharTraits > &
-_esc_seq_finalizer( ::std::basic_ostream< _CharT, _CharTraits > &_ostr )
+template < typename CharT, typename CharTraits >
+inline ::std::basic_ostream< CharT, CharTraits > &
+_esc_seq_finalizer( ::std::basic_ostream< CharT, CharTraits > &_ostr )
 { return _ostr; }
 
-#define _ENTRY_OPERATOR_DETAIL( _suf, _type, _forward )                    \
-  template < typename _CharTraits >                                        \
-  ::std::basic_ostream< _type, _CharTraits > &                             \
-  operator()( ::std::basic_ostream< _type, _CharTraits > &_ostr ) const    \
+#define ENTRY_OPERATOR_DETAIL( _suf, _type, _forward )                     \
+  template < typename CharTraits >                                         \
+  ::std::basic_ostream< _type, CharTraits > &                              \
+  operator()( ::std::basic_ostream< _type, CharTraits > &_ostr ) const     \
   { return _ostr << BOOST_PP_CAT( TRANCE_IOSTREAMS_, _forward )( _suf ); } \
 
-#define _ENTRY_IMPL( _entry, _char )                                  \
-  struct _entry                                                       \
-  {                                                                   \
-      _ENTRY_OPERATOR_DETAIL( _char, char    , CHAR_FORWARD     )     \
-      _ENTRY_OPERATOR_DETAIL( _char, wchar_t , WCHAR_T_FORWARD  )     \
-      TRANCE_IOSTREAMS_ENABLE_IF_HAS_CHAR16_T(                        \
-        _ENTRY_OPERATOR_DETAIL( _char, char16_t, CHAR16_T_FORWARD ) ) \
-      TRANCE_IOSTREAMS_ENABLE_IF_HAS_CHAR32_T(                        \
-        _ENTRY_OPERATOR_DETAIL( _char, char32_t, CHAR32_T_FORWARD ) ) \
-  }                                                                   \
+#define ENTRY_IMPL( _entry, _char )                                  \
+  struct _entry                                                      \
+  {                                                                  \
+      ENTRY_OPERATOR_DETAIL( _char, char    , CHAR_FORWARD     )     \
+      ENTRY_OPERATOR_DETAIL( _char, wchar_t , WCHAR_T_FORWARD  )     \
+      TRANCE_IOSTREAMS_ENABLE_IF_HAS_CHAR16_T(                       \
+        ENTRY_OPERATOR_DETAIL( _char, char16_t, CHAR16_T_FORWARD ) ) \
+      TRANCE_IOSTREAMS_ENABLE_IF_HAS_CHAR32_T(                       \
+        ENTRY_OPERATOR_DETAIL( _char, char32_t, CHAR32_T_FORWARD ) ) \
+  }                                                                  \
 
 _ENTRY_IMPL( _square_bracket, '[' );
 
@@ -134,8 +134,8 @@ _ENTRY_IMPL( _put_B, 'B' );
 _ENTRY_IMPL( _put_C, 'C' );
 _ENTRY_IMPL( _put_D, 'D' );
 
-#undef _ENTRY_IMPL
-#undef _ENTRY_OPERATOR_DETAIL
+#undef ENTRY_IMPL
+#undef ENTRY_OPERATOR_DETAIL
 
 inline size_t
 _find_ntz( ::boost::uint8_t _x ) TRANCE_NOEXCEPT
@@ -145,18 +145,18 @@ _find_ntz( ::boost::uint8_t _x ) TRANCE_NOEXCEPT
     return i;
 }
 
-template < typename _Attribute >
+template < typename Attribute >
 inline ::boost::uint8_t
-_mask( typename _Attribute::value_type _x ) TRANCE_NOEXCEPT
+_mask( typename Attribute::value_type _x ) TRANCE_NOEXCEPT
 { return _x & ( ( 1u << 8 ) - 1 ); }
 
 #define INSERT_SEMICOLON_WHEN( begin, itr ) \
   if ( begin == itr ) {} else *itr++ = ';'
 
-template < typename _CharT >
+template < typename CharT >
 inline void
 _insert_when( ::boost::uint8_t pred,
-  _CharT * const begin, _CharT *&itr, const _CharT value ) TRANCE_NOEXCEPT
+  CharT * const begin, CharT *&itr, const CharT value ) TRANCE_NOEXCEPT
 {
     if ( !pred )
     { return; }
@@ -168,24 +168,24 @@ _insert_when( ::boost::uint8_t pred,
 
 } // namespace _detail
 
-template < typename _CharT, typename _Traits, typename _Attribute >
-inline ::std::basic_ostream< _CharT, _Traits > &
-operator<<( ::std::basic_ostream< _CharT, _Traits > &_ostr,
-  const _attribute_forwarder< _Attribute > &_af )
+template < typename CharT, typename Traits, typename Attribute >
+inline ::std::basic_ostream< CharT, Traits > &
+operator<<( ::std::basic_ostream< CharT, Traits > &_ostr,
+  const _attribute_forwarder< Attribute > &_af )
 {
-    _CharT _buf[ 16 ] = { '\x1b', '[' };
-    _CharT *itr = _buf + 2;
-    if ( _af._M_value == _Attribute::reset )
+    CharT _buf[ 16 ] = { '\x1b', '[' };
+    CharT *itr = _buf + 2;
+    if ( _af._m_value == Attribute::reset )
     { *itr++ = '0'; }
     else
     {
         using namespace _detail;
-        typedef ::boost::uint8_t mask_t( typename _Attribute::value_type );
-        mask_t &mask = _mask< _Attribute >;
+        typedef ::boost::uint8_t mask_t( typename Attribute::value_type );
+        mask_t &mask = _mask< Attribute >;
 
-        if ( ::boost::uint8_t _tmp = mask( _af._M_value ) )
+        if ( ::boost::uint8_t _tmp = mask( _af._m_value ) )
         {
-            for ( _CharT c = '1'; _tmp; _tmp >>= 1, ++c )
+            for ( CharT c = '1'; _tmp; _tmp >>= 1, ++c )
             {
                 if ( _tmp & ~1 )
                 { continue; }
@@ -194,8 +194,8 @@ operator<<( ::std::basic_ostream< _CharT, _Traits > &_ostr,
                 *itr++ = c;
             }
         }
-        _insert_when( mask( _af._M_value >>  8 ), _buf, itr, '3' );
-        _insert_when( mask( _af._M_value >> 16 ), _buf, itr, '4' );
+        _insert_when( mask( _af._m_value >>  8 ), _buf, itr, '3' );
+        _insert_when( mask( _af._m_value >> 16 ), _buf, itr, '4' );
     }
 
     *itr = 'm';

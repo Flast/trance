@@ -42,18 +42,18 @@
 #define MANIP_NAME BOOST_PP_TUPLE_ELEM( 2, 0, CURRENT_PAIR )
 #define MANIP      BOOST_PP_TUPLE_ELEM( 2, 1, CURRENT_PAIR )
 
-#define OSTREAM( n_, _Traits )            \
+#define OSTREAM( n_, Traits )             \
   ::std::basic_ostream<                   \
     TRANCE_IOSTREAMS_GET_CHAR_TYPE( n_ ), \
-    _Traits                               \
+    Traits                                \
   >                                       \
 
 #define BOOST_PP_LOCAL_LIMITS \
   ( 0, BOOST_PP_DEC( TRANCE_IOSTREAMS_CHAR_TUPLE_SIZE ) )
 #define BOOST_PP_LOCAL_MACRO( n_ )                                  \
-  template < typename _CharTraits >                                 \
-  inline OSTREAM( n_, _CharTraits ) &                               \
-  MANIP_NAME( OSTREAM( n_, _CharTraits ) &_ostr )                   \
+  template < typename CharTraits >                                  \
+  inline OSTREAM( n_, CharTraits ) &                                \
+  MANIP_NAME( OSTREAM( n_, CharTraits ) &_ostr )                    \
   {                                                                 \
       namespace iostreams = ::trance::iostreams;                    \
       using namespace iostreams::iostreams_detail::_detail;         \

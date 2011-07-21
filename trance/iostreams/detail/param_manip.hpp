@@ -50,27 +50,27 @@ namespace iostreams_detail
 namespace _param_detail
 {
 
-#define OSTREAM( n_, _Traits )            \
+#define OSTREAM( n_, Traits )             \
   ::std::basic_ostream<                   \
     TRANCE_IOSTREAMS_GET_CHAR_TYPE( n_ ), \
-    _Traits                               \
+    Traits                                \
   >                                       \
 
 #define BOOST_PP_LOCAL_LIMITS \
   ( 0, BOOST_PP_DEC( TRANCE_IOSTREAMS_CHAR_TUPLE_SIZE ) )
 #define BOOST_PP_LOCAL_MACRO( n_ )                          \
-  template < typename _CharTraits >                         \
-  inline OSTREAM( n_, _CharTraits ) &                       \
+  template < typename CharTraits >                          \
+  inline OSTREAM( n_, CharTraits ) &                        \
   operator<<(                                               \
-    OSTREAM( n_, _CharTraits ) &_ostr                       \
+    OSTREAM( n_, CharTraits ) &_ostr                        \
   , const MANIP_NAME &_param )                              \
   {                                                         \
       namespace iostreams = ::trance::iostreams;            \
       using namespace iostreams::iostreams_detail::_detail; \
       _esc_seq_initializer( _ostr );                        \
-        _param._M_pref( _ostr );                            \
-          _ostr << _param._M_param;                         \
-        _param._M_suf( _ostr );                             \
+        _param._m_pref( _ostr );                            \
+          _ostr << _param._m_param;                         \
+        _param._m_suf( _ostr );                             \
       _esc_seq_finalizer( _ostr );                          \
       return _ostr;                                         \
   }                                                         \
