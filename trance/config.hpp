@@ -499,7 +499,13 @@
 #   define TRANCE_TYPE_TRAITS_HDR <boost/type_traits.hpp>
 #endif // TRANCE_HAS_0X_HDR_TYPE_TRAITS
 
-#include <trance/config/attribute.hpp>
+// Compiler local configurations.
+#ifdef __GNUC__
+#   include <trance/config/compiler/gcc.hpp>
+#elif _MSC_VER
+#   include <trance/config/compiler/msvc.hpp>
+#endif
+#include <trance/config/compiler/default.hpp>
 
 #endif // IG_TRANCE_CONFIG_HPP_ONCE_
 
