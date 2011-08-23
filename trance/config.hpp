@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-// XXX NOTE -- 2011/04/06 -- XXX
+// XXX NOTE -- 2011/08/24 -- XXX
 //  Trance.Config is written for Boost 1.47.0.
 //  If you want to use as trunk, define TRANCE_CONFIG_USE_AS_TRUNK.
 
