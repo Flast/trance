@@ -21,7 +21,7 @@
 // THE SOFTWARE.
 
 // XXX NOTE -- 2011/04/06 -- XXX
-//  Trance.Config is written for Boost 1.46.1.
+//  Trance.Config is written for Boost 1.47.0.
 //  If you want to use as trunk, define TRANCE_CONFIG_USE_AS_TRUNK.
 
 #ifndef IG_TRANCE_CONFIG_HPP_ONCE_
