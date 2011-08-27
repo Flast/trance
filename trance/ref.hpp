@@ -51,7 +51,9 @@ template < typename T >
 struct ref
 {
     typedef boost::reference_wrapper<
-      typename boost::remove_reference< T >::type
+      typename boost::remove_reference<
+        typename boost::unwrap_reference< T >::type
+      >::type
     > type;
 };
 
@@ -59,7 +61,9 @@ template < typename T >
 struct cref
 {
     typedef boost::reference_wrapper<
-      const typename boost::remove_reference< T >::type
+      const typename boost::remove_reference<
+        typename boost::unwrap_reference< T >::type
+      >::type
     > type;
 };
 
