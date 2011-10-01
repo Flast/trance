@@ -1,0 +1,17 @@
+import sequence ;
+
+project /trance/mpl/test
+  : parent /trance
+  : requirements
+      $(boost-requirements)
+      $(project-requirements)
+  ;
+
+local compile-tests = [ sequence.unique
+  [ MATCH (.*/compile[0-9]*).cpp : [ glob */*.cpp ] ] ] ;
+
+explicit-alias trance_test_exec
+  : /trance/mpl/test//$(compile-tests)
+  ;
+
+test-compile $(compile-tests) ;

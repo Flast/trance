@@ -507,5 +507,18 @@
 #endif
 #include <trance/config/compiler/default.hpp>
 
+#include <boost/preprocessor/config/limits.hpp>
+
+// Configurations for Trance.
+#ifdef TRANCE_MPL_LIMIT_VARIADIC_EMULATE
+#   if TRANCE_MPL_LIMIT_VARIADIC_EMULATE < 1
+#       error "TRANCE_MPL_LIMIT_VARIADIC_EMULATE cannot be less than 1."
+#   elif BOOST_PP_LIMIT_FOR < TRANCE_MPL_LIMIT_VARIADIC_EMULATE
+#       error "TRANCE_MPL_LIMIT_VARIADIC_EMULATE should be equal or less than BOOST_PP_LIMIT_FOR."
+#   endif
+#else
+#   define TRANCE_MPL_LIMIT_VARIADIC_EMULATE 10
+#endif // TRANCE_MPL_LIMIT_VARIADIC_EMULATE
+
 #endif // IG_TRANCE_CONFIG_HPP_ONCE_
 
