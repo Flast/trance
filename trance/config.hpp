@@ -394,11 +394,11 @@
 #   define TRANCE_ARRAY_HDR <boost/array.hpp>
 #endif // TRANCE_HAS_0X_HDR_ARRAY
 
-// Boost.Chrono not supported in 1.46.1 yet.
+// Boost.Chrono supported after 1.47.0.
 #ifdef TRANCE_HAS_0X_HDR_CHRONO // require 1.40.0
 #   define TRANCE_CHRONO_NAMESPACE ::std
 #   define TRANCE_CHRONO_HDR <chrono>
-#elif defined( TRANCE_CONFIG_USE_AS_TRUNK )
+#elif 104700 <= BOOST_VERSION
 #   define TRANCE_CHRONO_NAMESPACE ::boost
 #   define TRANCE_CHRONO_HDR <boost/chrono.hpp>
 #else
@@ -442,11 +442,11 @@
 #   define TRANCE_RANDOM_HDR <boost/random.hpp>
 #endif // TRANCE_HAS_0X_HDR_RANDOM
 
-// Boost.Ratio not supported in 1.46.1 yet.
+// Boost.Ratio supported after 1.47.0.
 #ifdef TRANCE_HAS_0X_HDR_RATIO // require 1.40.0
 #   define TRANCE_RATIO_NAMESPACE ::std
 #   define TRANCE_RATIO_HDR <ratio>
-#elif defined( TRANCE_CONFIG_USE_AS_TRUNK )
+#elif 104700 <= BOOST_VERSION
 #   define TRANCE_RATIO_NAMESPACE ::boost
 #   define TRANCE_RATIO_HDR <boost/ratio.hpp>
 #else
