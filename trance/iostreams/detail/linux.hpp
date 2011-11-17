@@ -127,12 +127,12 @@ _esc_seq_finalizer( ::std::basic_ostream< CharT, CharTraits > &_ostr )
         ENTRY_OPERATOR_DETAIL( _char, char32_t, CHAR32_T_FORWARD ) ) \
   }                                                                  \
 
-_ENTRY_IMPL( _square_bracket, '[' );
+ENTRY_IMPL( _square_bracket, '[' );
 
-_ENTRY_IMPL( _put_A, 'A' );
-_ENTRY_IMPL( _put_B, 'B' );
-_ENTRY_IMPL( _put_C, 'C' );
-_ENTRY_IMPL( _put_D, 'D' );
+ENTRY_IMPL( _put_A, 'A' );
+ENTRY_IMPL( _put_B, 'B' );
+ENTRY_IMPL( _put_C, 'C' );
+ENTRY_IMPL( _put_D, 'D' );
 
 #undef ENTRY_IMPL
 #undef ENTRY_OPERATOR_DETAIL
