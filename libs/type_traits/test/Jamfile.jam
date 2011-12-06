@@ -14,4 +14,4 @@ explicit-alias trance_test_exec
   : /trance/algorithm/test//$(compile-tests)
   ;
 
-test-compile $(compile-tests) ;
+test compile : $(compile-tests) ;

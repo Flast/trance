@@ -14,4 +14,4 @@ explicit-alias trance_test_exec
   : /trance/core/test//$(run-tests)
   ;
 
-test-run $(run-tests) ;
+test run : $(run-tests) ;
