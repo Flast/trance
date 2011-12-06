@@ -48,7 +48,7 @@ rule named-compile-fail ( name : sources + : requirements * )
 rule test-compile ( successes * : fails * )
 {
     for local s in $(successes) { named-compile      $(s) : $(s).cpp ; }
-    for local f in $(fails)     { names-compile-fail $(f) : $(f).cpp ; }
+    for local f in $(fails)     { named-compile-fail $(f) : $(f).cpp ; }
 }
 
 rule named-link ( name : sources + : requirements * )
@@ -64,7 +64,7 @@ rule named-link-fail ( name : sources + : requirements * )
 rule test-link ( successes * : fails * )
 {
     for local s in $(successes) { named-link      $(s) : $(s).cpp ; }
-    for local f in $(fails)     { names-link-fail $(f) : $(f).cpp ; }
+    for local f in $(fails)     { named-link-fail $(f) : $(f).cpp ; }
 }
 
 rule named-run ( name : sources + : requirements * )
@@ -81,7 +81,7 @@ rule named-run-fail ( name : sources + : requirements * )
 rule test-run ( successes * : fails * )
 {
     for local s in $(successes) { named-run      $(s) : $(s).cpp ; }
-    for local f in $(fails)     { names-run-fail $(f) : $(f).cpp ; }
+    for local f in $(fails)     { named-run-fail $(f) : $(f).cpp ; }
 }
 
 # Including Trance all headers.
