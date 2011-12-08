@@ -10,8 +10,13 @@ project /trance/core/test
 local run-tests = [ sequence.unique
   [ MATCH (.*/run[0-9]*).cpp : [ glob */*.cpp ] ] ] ;
 
+local compile-fail-tests = [ sequence.unique
+  [ MATCH (.*/compile[0-9]*-fail).cpp : [ glob */*.cpp ] ] ] ;
+
 explicit-alias trance_test_exec
   : /trance/core/test//$(run-tests)
+    /trance/core/test//$(compile-fail-tests)
   ;
 
+test compile : : $(compile-fail-tests) ;
 test run : $(run-tests) ;
