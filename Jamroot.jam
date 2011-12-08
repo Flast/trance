@@ -1,3 +1,4 @@
+import "class" : new ;
 import os ;
 import package ;
 import path ;
@@ -35,43 +36,47 @@ rule explicit-alias ( id : targets + )
     explicit $(id) ;
 }
 
-rule named-compile ( name : sources + : requirements * )
+class explicit-test
 {
-    compile $(sources) : $(requirements) : $(name) ;
-    explicit $(name) ;
-}
-rule named-compile-fail ( name : sources + : requirements * )
-{
-    compile-fail $(sources) : $(requirements) : $(name) ;
-    explicit $(name) ;
-}
+    rule __init__ ( rule )
+    {
+        self.rule = $(rule) ;
+    }
 
-rule named-link ( name : sources + : requirements * )
-{
-    link $(sources) : $(requirements) : $(name) ;
-    explicit $(name) ;
-}
-rule named-link-fail ( name : sources + : requirements * )
-{
-    link-fail $(sources) : $(requirements) : $(name) ;
-    explicit $(name) ;
-}
+    rule extest-impl ( module rule : name : * )
+    {
+        switch $(self.rule)
+        {
+          case run
+            : $(rule) $(3) : $(4) : $(5) : $(6) : $(name)
+            ;
+          case *
+            : $(rule) $(3) : $(4) : $(name)
+            ;
+        }
+        module $(module)
+        {
+            explicit $(name) ;
+        }
+    }
 
-rule named-run ( name : sources + : requirements * )
-{
-    run $(sources) : : : $(requirements) : $(name) ;
-    explicit $(name) ;
-}
-rule named-run-fail ( name : sources + : requirements * )
-{
-    run-fail $(sources) : : : $(requirements) : $(name) ;
-    explicit $(name) ;
+    rule extest ( * )
+    {
+        local m = [ CALLER_MODULE ] ;
+        extest-impl $(m) $(self.rule) : $(1) : $(2) : $(3) : $(4) : $(5) ;
+    }
+    rule extest-fail ( * )
+    {
+        local m = [ CALLER_MODULE ] ;
+        extest-impl $(m) $(self.rule)-fail : $(1) : $(2) : $(3) : $(4) : $(5) ;
+    }
 }
 
 rule test ( rule : successes * : fails * )
 {
-    for local s in $(successes) { named-$(rule)      $(s) : $(s).cpp ; }
-    for local f in $(fails)     { named-$(rule)-fail $(f) : $(f).cpp ; }
+    local nrule = [ new explicit-test $(rule) ] ;
+    for local s in $(successes) { $(nrule).extest      $(s) : $(s).cpp ; }
+    for local f in $(fails)     { $(nrule).extest-fail $(f) : $(f).cpp ; }
 }
 
 # Including Trance all headers.
