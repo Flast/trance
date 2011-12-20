@@ -21,7 +21,7 @@
 // THE SOFTWARE.
 
 // XXX NOTE -- 2011/08/24 -- XXX
-//  Trance.Config is written for Boost 1.47.0.
+//  Trance.Config is written for Boost 1.48.0.
 //  If you want to use as trunk, define TRANCE_CONFIG_USE_AS_TRUNK.
 
 #ifndef IG_TRANCE_CONFIG_HPP_ONCE_
@@ -205,13 +205,16 @@
 
 #endif // 104700 <= BOOST_VERSION
 
-// Boost 1.47.0 does not support yet.
-#if defined( TRANCE_CONFIG_USE_AS_TRUNK )
+#if 104800 <= BOOST_VERSION
 
 #   ifndef BOOST_NO_DECLTYPE_N3276
 #       define TRANCE_HAS_DECLTYPE_N3276
 #   endif // BOOST_NO_DECLTYPE_N3276
 
+#endif // 104800 <= BOOST_VERSION
+
+// Boost 1.48.0 does not support yet.
+#if defined( TRANCE_CONFIG_USE_AS_TRUNK )
 #endif // TRANCE_CONFIG_USE_AS_TRUNK
 
 // Utilities
@@ -364,6 +367,10 @@
 #   endif // BOOST_NO_NUMERIC_LIMITS_LOWEST
 
 #endif // 104500 <= BOOST_VERSION
+
+// Boost 1.48.0 does not support yet.
+#if defined( TRANCE_CONFIG_USE_AS_TRUNK )
+#endif // TRANCE_CONFIG_USE_AS_TRUNK
 
 // Alternatives
 
